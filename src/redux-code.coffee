@@ -8,8 +8,8 @@ snakeCase = (s) ->
     return s unless upperCharts
 
     s = s.replace(
-        new RegExp("#{c}", "_#{c.toLowerCase()}")
-    ) for c in upperCharts
+        new RegExp("#{c}"),
+        "_#{c.toLowerCase()}") for c in upperCharts
 
     return if s[0] == '_' then s.slice(1) else s
 
