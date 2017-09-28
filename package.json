@@ -1,0 +1,47 @@
+{
+  "name": "redux-code",
+  "version": "0.0.0",
+  "description": "Redux creatore for actions and reducers",
+  "main": "lib/redux-code.js",
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/klen/redux-code.git"
+  },
+  "keywords": [
+    "redux",
+    "redux-actions",
+    "redux-reducers"
+  ],
+  "author": "Kirill Klenov <horneds@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/klen/redux-code/issues"
+  },
+  "homepage": "https://github.com/klen/redux-code#readme",
+  "coffeelintConfig": {
+    "indentation": {
+      "value": 4,
+      "level": "error"
+    },
+    "max_line_length": {
+      "value": 120,
+      "level": "error"
+    }
+  },
+  "dependencies": {
+    "redux": "^3.7.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "coffeescript": "^2.0.0"
+  }
+}
