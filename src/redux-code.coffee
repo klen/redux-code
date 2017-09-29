@@ -32,8 +32,8 @@ wrapCreator = (creator, type, async) -> (args...) ->
     return action unless async
 
     dispatch = args[0]
-    dispatch(action)
-    return
+    result = dispatch(action)
+    return if result.payload? then result.payload else result
 
 
 createActions = (creators, prefix, join="/") ->
