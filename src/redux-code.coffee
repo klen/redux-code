@@ -33,12 +33,16 @@ wrapCreator = (creator, type, async) -> (args...) ->
     result = dispatch(action)
     return if result.payload? then result.payload else result
 
-commonReducer = (TYPES, DEFAULT={}) ->
-    "#{TYPES.UPDATE or 'UPDATE'}": (state, action) -> {state..., action.payload...}
-    "#{TYPES.RESET or 'RESET'}": (state, action) -> DEFAULT
+commonReducer = (TYPES, DEFAULT) ->
+    reducers = {}
+    reducers[TYPES.UPDATE or 'UPDATE'] = (state, action) -> {state..., action.payload...}
+    reducers[TYPES.RESET or 'RESET'] = (state, action) -> DEFAULT
+    return reducers
 
-initialReducer = (TYPES, DEFAULT={}) ->
-    "#{TYPES.INIT or 'INIT'}": (state, action) -> {state..., inited: true}
+initialReducer = (TYPES) ->
+    reducers = {}
+    reducers[TYPES.INIT or 'INIT'] = (state, action) -> {state..., inited: true}
+    return reducers
 
 createReducer = (TYPES, DEFAULT={}, mixins...) ->
     reducers = {}
@@ -67,4 +71,12 @@ createActions = (creators, prefix, join="/") ->
 
     return created
 
-module.exports = {SKIP, createActions, createReducer, commonReducer, initialReducer}
+module.exports = {
+    SKIP
+
+    createActions
+
+    createReducer
+    commonReducer
+    initialReducer
+}
