@@ -1,7 +1,8 @@
+SKIP = {}
 identity = (payload) -> payload
 isFunction = (v) -> typeof(v) == 'function'
 
-snakeCase = (s) ->
+toSnakeCase = (s) ->
     s = s.toString()
 
     upperCharts = s.match(/[A-Z]/g)
@@ -12,9 +13,6 @@ snakeCase = (s) ->
         "_#{c.toLowerCase()}") for c in upperCharts
 
     return if s[0] == '_' then s.slice(1) else s
-
-
-SKIP = {}
 
 wrapCreator = (creator, type, async) -> (args...) ->
     action = creator(args...)
@@ -35,6 +33,22 @@ wrapCreator = (creator, type, async) -> (args...) ->
     result = dispatch(action)
     return if result.payload? then result.payload else result
 
+commonReducer = (TYPES, DEFAULT={}) ->
+    "#{TYPES.UPDATE or 'UPDATE'}": (state, action) -> {state..., action.payload...}
+    "#{TYPES.RESET or 'RESET'}": (state, action) -> DEFAULT
+
+initialReducer = (TYPES, DEFAULT={}) ->
+    "#{TYPES.INIT or 'INIT'}": (state, action) -> {state..., inited: true}
+
+createReducer = (TYPES, DEFAULT={}, mixins...) ->
+    reducers = {}
+    for mixin in mixins
+        mixin = mixin(TYPES, DEFAULT) if isFunction(mixin)
+        reducers = {reducers..., mixin...}
+
+    (state=DEFAULT, action) ->
+        reducer = reducers[action.type] or identity
+        return reducer(state, action)
 
 createActions = (creators, prefix, join="/") ->
 
@@ -42,7 +56,7 @@ createActions = (creators, prefix, join="/") ->
 
     for name, creator of creators
 
-        actionType = type = snakeCase(name).toUpperCase()
+        actionType = type = toSnakeCase(name).toUpperCase()
         actionType = "#{prefix}#{join}#{actionType}" if prefix
 
         creator = identity unless isFunction(creator)
@@ -53,4 +67,4 @@ createActions = (creators, prefix, join="/") ->
 
     return created
 
-module.exports = {SKIP, createActions}
+module.exports = {SKIP, createActions, createReducer, commonReducer, initialReducer}
