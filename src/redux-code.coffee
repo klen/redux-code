@@ -1,4 +1,5 @@
 SKIP = {}
+DEFAULTS = JOIN: '/'
 identity = (payload) -> payload
 isFunction = (v) -> typeof(v) == 'function'
 
@@ -54,7 +55,7 @@ createReducer = (TYPES, DEFAULT={}, mixins...) ->
         reducer = reducers[action.type] or identity
         return reducer(state, action)
 
-createActions = (prefix, creators..., join="/") ->
+createActions = (prefix, creators...) ->
 
     created = TYPES: {}
 
@@ -62,7 +63,7 @@ createActions = (prefix, creators..., join="/") ->
         for name, actionCreator of creator
 
             actionType = type = toSnakeCase(name).toUpperCase()
-            actionType = "#{prefix}#{join}#{actionType}" if prefix
+            actionType = "#{prefix}#{DEFAULTS.JOIN}#{actionType}" if prefix
 
             actionCreator = identity unless isFunction(actionCreator)
             actionCreator = wrapCreator(actionCreator.bind(created), actionType)
@@ -74,6 +75,7 @@ createActions = (prefix, creators..., join="/") ->
 
 module.exports = {
     SKIP
+    DEFAULTS
 
     createActions
 
