@@ -54,20 +54,21 @@ createReducer = (TYPES, DEFAULT={}, mixins...) ->
         reducer = reducers[action.type] or identity
         return reducer(state, action)
 
-createActions = (creators, prefix, join="/") ->
+createActions = (prefix, creators..., join="/") ->
 
     created = TYPES: {}
 
-    for name, creator of creators
+    for creator in creators
+        for name, actionCreator of creator
 
-        actionType = type = toSnakeCase(name).toUpperCase()
-        actionType = "#{prefix}#{join}#{actionType}" if prefix
+            actionType = type = toSnakeCase(name).toUpperCase()
+            actionType = "#{prefix}#{join}#{actionType}" if prefix
 
-        creator = identity unless isFunction(creator)
-        creator = wrapCreator(creator.bind(created), actionType)
+            actionCreator = identity unless isFunction(actionCreator)
+            actionCreator = wrapCreator(actionCreator.bind(created), actionType)
 
-        created.TYPES[type] = actionType
-        created[name] = creator
+            created.TYPES[type] = actionType
+            created[name] = actionCreator
 
     return created
 
