@@ -4,82 +4,82 @@ identity = (payload) -> payload
 isFunction = (v) -> typeof(v) == 'function'
 
 toSnakeCase = (s) ->
-    s = s.toString()
+  s = s.toString()
 
-    upperCharts = s.match(/[A-Z]/g)
-    return s unless upperCharts
+  upperCharts = s.match(/[A-Z]/g)
+  return s unless upperCharts
 
-    s = s.replace(
-        new RegExp("#{c}"),
-        "_#{c.toLowerCase()}") for c in upperCharts
+  s = s.replace(
+    new RegExp("#{c}"),
+    "_#{c.toLowerCase()}") for c in upperCharts
 
-    return if s[0] == '_' then s.slice(1) else s
+  return if s[0] == '_' then s.slice(1) else s
 
 wrapCreator = (creator, type, async) -> (args...) ->
-    action = creator(args...)
+  action = creator(args...)
 
-    # Support redux-thunk middleware
-    if isFunction(action)
-        return wrapCreator(action, type, true)
+  # Support redux-thunk middleware
+  if isFunction(action)
+    return wrapCreator(action, type, true)
 
-    # If creator return SKIP do nothing more
-    return if action is SKIP
+  # If creator return SKIP do nothing more
+  return if action is SKIP
 
-    unless action and action.type
-        action = type: type, payload: action
+  unless action and action.type
+    action = type: type, payload: action
 
-    return action unless async
+  return action unless async
 
-    dispatch = args[0]
-    result = dispatch(action)
-    return if result.payload? then result.payload else result
+  dispatch = args[0]
+  result = dispatch(action)
+  return if result.payload? then result.payload else result
 
 commonReducer = (TYPES, DEFAULT) ->
-    reducers = {}
-    reducers[TYPES.UPDATE or 'UPDATE'] = (state, action) -> {state..., action.payload...}
-    reducers[TYPES.RESET or 'RESET'] = (state, action) -> DEFAULT
-    return reducers
+  reducers = {}
+  reducers[TYPES.UPDATE or 'UPDATE'] = (state, action) -> {state..., action.payload...}
+  reducers[TYPES.RESET or 'RESET'] = (state, action) -> DEFAULT
+  return reducers
 
 initialReducer = (TYPES) ->
-    reducers = {}
-    reducers[TYPES.INIT or 'INIT'] = (state, action) -> {state..., inited: true}
-    return reducers
+  reducers = {}
+  reducers[TYPES.INIT or 'INIT'] = (state, action) -> {state..., inited: true}
+  return reducers
 
 createReducer = (TYPES, DEFAULT={}, mixins...) ->
-    reducers = {}
-    for mixin in mixins
-        mixin = mixin(TYPES, DEFAULT) if isFunction(mixin)
-        reducers = {reducers..., mixin...}
+  reducers = {}
+  for mixin in mixins
+    mixin = mixin(TYPES, DEFAULT) if isFunction(mixin)
+    reducers = {reducers..., mixin...}
 
-    (state=DEFAULT, action) ->
-        reducer = reducers[action.type] or identity
-        return reducer(state, action)
+  (state=DEFAULT, action) ->
+    reducer = reducers[action.type] or identity
+    return reducer(state, action)
 
 createActions = (prefix, creators...) ->
 
-    created = TYPES: {}
+  created = TYPES: {}
 
-    for creator in creators
-        for name, actionCreator of creator
+  for creator in creators
+    for name, actionCreator of creator
 
-            actionType = type = toSnakeCase(name).toUpperCase()
-            actionType = "#{prefix}#{DEFAULTS.JOIN}#{actionType}" if prefix
+      actionType = type = toSnakeCase(name).toUpperCase()
+      actionType = "#{prefix}#{DEFAULTS.JOIN}#{actionType}" if prefix
 
-            actionCreator = identity unless isFunction(actionCreator)
-            actionCreator = wrapCreator(actionCreator.bind(created), actionType)
+      actionCreator = identity unless isFunction(actionCreator)
+      actionCreator = wrapCreator(actionCreator.bind(created), actionType)
 
-            created.TYPES[type] = actionType
-            created[name] = actionCreator
+      created.TYPES[type] = actionType
+      created[name] = actionCreator
 
-    return created
+  return created
 
 module.exports = {
-    SKIP
-    DEFAULTS
+  SKIP
+  DEFAULTS
 
-    createActions
+  createActions
 
-    createReducer
-    commonReducer
-    initialReducer
+  createReducer
+  commonReducer
+  initialReducer
 }
