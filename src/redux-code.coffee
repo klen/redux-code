@@ -45,15 +45,13 @@ initialReducer = (TYPES) ->
   reducers[TYPES.INIT or 'INIT'] = (state, action) -> {state..., inited: true}
   return reducers
 
-createReducer = (TYPES, DEFAULT={}, mixins...) ->
+createReducer = (DEFAULT={}, mixins...) ->
   reducers = {}
-  for mixin in mixins
-    mixin = mixin(TYPES, DEFAULT) if isFunction(mixin)
-    reducers = {reducers..., mixin...}
+  reducers = {reducers..., mixin...} for mixin in mixins
 
   (state=DEFAULT, action) ->
-    reducer = reducers[action.type] or identity
-    return reducer(state, action)
+    reducer = reducers[action.type]
+    return if reducer then reducer(state, action) else state
 
 createActions = (prefix, creators...) ->
 

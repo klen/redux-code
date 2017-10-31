@@ -1,6 +1,7 @@
 # redux-code
 
 [![npm version](https://badge.fury.io/js/redux-code.svg)](https://badge.fury.io/js/redux-code)
+[![travis build](https://travis-ci.org/klen/redux-code.svg?branch=develop)](https://travis-ci.org/klen/redux-code)
 
 Redux creators for actions and reducers
 
@@ -41,7 +42,9 @@ const actions = createActions('PREFIX', {
 })
 
 // Use your actions
-dispatch(actions.doAsync().then(...))
+dispatch(
+    actions.doAsync()
+).then(...)
 
 // Actions types are generated
 // actions.TYPES
@@ -49,7 +52,6 @@ dispatch(actions.doAsync().then(...))
 
 
 // You can mix your actions as well
-
 commonActions = {
     update: true,
     reset: true
@@ -67,7 +69,22 @@ const DEFAULT = {
     value: null
 }
 
-// actions.TYPES = 
-reducer = createReducer( actions.TYPES, DEFAULT )
+
+const reducer = createReducer(DEFAULT, {
+    [actions.TYPES.UPDATE]: (state, action) => {state..., action.payload...},
+    [actions.TYPES.RESET]: (state) => DEFAULT
+})
+
+
+// You can mix your reducers as well
+
+const CommonReducerFactory = (TYPES, DEFAULT) => {
+    [TYPES.UPDATE]: (state, action) => {state..., action.payload...},
+    [TYPES.RESET]: (state) => DEFAULT
+}
+
+const reducer = createReducer(DEFAULT, CommonReducerFactory(actions.TYPES, DEFAULT), {
+    'CUSTOM': (state) => {state..., custom: true}
+})
 
 ```

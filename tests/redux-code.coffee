@@ -34,7 +34,7 @@ exports.ReduxCode =
 
     DEFAULT = value: 'default'
 
-    reducer = RC.createReducer actions.TYPES, DEFAULT,  RC.initialReducer, RC.commonReducer, {
+    reducer = RC.createReducer DEFAULT,  RC.initialReducer(actions.TYPES), RC.commonReducer(actions.TYPES, DEFAULT), {
       "#{actions.TYPES.CUSTOM}": (state, action) -> {state..., value: 'custom'}
     }
 
