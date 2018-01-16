@@ -32,7 +32,9 @@ wrapCreator = (type, creator) -> (args...) ->
   # Support promises (requires redux-thunk)
   if isFunction(action.then)
     m = wrapCreator(type, identity)
-    return (dispatch) -> action.then (a) -> dispatch m(a)
+    return (dispatch) -> action.then (a) ->
+        dispatch m(a)
+        return a
 
   return if action.type then action else type: type, payload: action
 
