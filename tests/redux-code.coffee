@@ -15,6 +15,8 @@ exports.ReduxCode =
 
       promiseAction: -> Promise.resolve('promise')
 
+      skippedAction: -> return RC.SKIP
+
     }, { 'mixinAction' }
 
     test.ok(actions)
@@ -40,6 +42,8 @@ exports.ReduxCode =
     actions.thunkAction()(dispatch)
 
     test.deepEqual(types, ['TESTS/CUSTOM_ACTION', 'TESTS/THUNK_ACTION'])
+
+    test.deepEqual(actions.skippedAction(), type: null)
 
     # Test Promises
     dispatch = (action) ->

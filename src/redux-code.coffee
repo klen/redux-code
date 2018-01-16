@@ -1,5 +1,6 @@
-SKIP = {}
+SKIP = type: null
 DEFAULTS = JOIN: '/'
+
 identity = (payload) -> payload
 isFunction = (v) -> typeof(v) is 'function'
 
@@ -21,8 +22,7 @@ wrapCreator = (type, creator) -> (args...) ->
 
   return {type} unless action
 
-  # If creator return SKIP do nothing more
-  return if action is SKIP
+  return SKIP if action is SKIP
 
   # Support redux-thunk middleware
   if isFunction(action)
@@ -34,10 +34,7 @@ wrapCreator = (type, creator) -> (args...) ->
     m = wrapCreator(type, identity)
     return (dispatch) -> action.then (a) -> dispatch m(a)
 
-  unless action.type
-    action = type: type, payload: action
-
-  return action
+  return if action.type then action else type: type, payload: action
 
 commonReducer = (TYPES, DEFAULT) ->
   reducers = {}
