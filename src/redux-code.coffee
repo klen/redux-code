@@ -27,8 +27,7 @@ wrapCreator = (type, creator) -> (args...) ->
   # Support redux-thunk middleware
   if isFunction(action)
       m = wrapCreator(type, action)
-      return (dispatch, getState) ->
-          dispatch m(dispatch, getState)
+      return (dispatch, args...) -> dispatch m(dispatch, args...)
 
   # Support promises (requires redux-thunk)
   if isFunction(action.then)
