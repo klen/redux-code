@@ -1,6 +1,6 @@
 {
   "name": "redux-code",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Redux creatore for actions and reducers",
   "main": "lib/redux-code.js",
   "babel": {
