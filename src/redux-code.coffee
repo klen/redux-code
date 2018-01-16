@@ -1,7 +1,7 @@
 SKIP = {}
 DEFAULTS = JOIN: '/'
 identity = (payload) -> payload
-isFunction = (v) -> typeof(v) == 'function'
+isFunction = (v) -> typeof(v) is 'function'
 
 toSnakeCase = (s) ->
   s = s.toString()
@@ -15,24 +15,30 @@ toSnakeCase = (s) ->
 
   return if s[0] == '_' then s.slice(1) else s
 
-wrapCreator = (creator, type, async) -> (args...) ->
+# Wrap results into actions with types and payloads
+wrapCreator = (type, creator) -> (args...) ->
   action = creator(args...)
 
-  # Support redux-thunk middleware
-  if isFunction(action)
-    return wrapCreator(action, type, true)
+  return {type} unless action
 
   # If creator return SKIP do nothing more
   return if action is SKIP
 
-  unless action and action.type
+  # Support redux-thunk middleware
+  if isFunction(action)
+      m = wrapCreator(type, action)
+      return (dispatch, getState) ->
+          dispatch m(dispatch, getState)
+
+  # Support promises (requires redux-thunk)
+  if isFunction(action.then)
+    m = wrapCreator(type, identity)
+    return (dispatch) -> action.then (a) -> dispatch m(a)
+
+  unless action.type
     action = type: type, payload: action
 
-  return action unless async
-
-  dispatch = args[0]
-  result = dispatch(action)
-  return if result.payload? then result.payload else result
+  return action
 
 commonReducer = (TYPES, DEFAULT) ->
   reducers = {}
@@ -64,7 +70,7 @@ createActions = (prefix, creators...) ->
       actionType = "#{prefix}#{DEFAULTS.JOIN}#{actionType}" if prefix
 
       actionCreator = identity unless isFunction(actionCreator)
-      actionCreator = wrapCreator(actionCreator.bind(created), actionType)
+      actionCreator = wrapCreator(actionType, actionCreator.bind(created))
 
       created.TYPES[type] = actionType
       created[name] = actionCreator

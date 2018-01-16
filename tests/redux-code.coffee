@@ -9,6 +9,12 @@ exports.ReduxCode =
 
       customAction: -> 'custom'
 
+      thunkAction: -> (dispatch, getState) =>
+          dispatch @customAction()
+          return 'thunk'
+
+      promiseAction: -> Promise.resolve('promise')
+
     }, { 'mixinAction' }
 
     test.ok(actions)
@@ -23,10 +29,25 @@ exports.ReduxCode =
       type: 'TESTS/CUSTOM_ACTION', payload: 'custom'
     )
     test.deepEqual(actions.mixinAction(),
-      type: 'TESTS/MIXIN_ACTION', payload: undefined
+      type: 'TESTS/MIXIN_ACTION'
     )
 
-    test.done()
+    # Test Redux-thunk
+    types = []
+
+    dispatch = (action) -> types.push(action.type)
+
+    actions.thunkAction()(dispatch)
+
+    test.deepEqual(types, ['TESTS/CUSTOM_ACTION', 'TESTS/THUNK_ACTION'])
+
+    # Test Promises
+    dispatch = (action) ->
+        test.deepEqual(action, { type: 'TESTS/PROMISE_ACTION', payload: 'promise' })
+        test.done()
+
+    actions.promiseAction()(dispatch)
+
 
   'Create reducers': (test) ->
 
