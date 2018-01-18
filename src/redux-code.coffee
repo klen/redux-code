@@ -75,9 +75,13 @@ createActions = (prefix, creators...) ->
 
   return created
 
+skipMiddleware = (store) -> (next) -> (action) -> next(action) unless action.type is null
+
 module.exports = {
   SKIP
   DEFAULTS
+
+  skipMiddleware
 
   createActions
 
