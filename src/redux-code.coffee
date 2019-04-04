@@ -82,8 +82,7 @@ reducerEnhancer = (createStore) -> (reducer, args...) ->
 
     enhancedReducer = (state, action) ->
         state = reducer(state, action)
-        if typeof(state) is 'function'
-            state = state(schedule, store.getState)
+        state = state(schedule, store.getState) if isFunction(state)
         return state
 
     store = createStore(enhancedReducer, args...)

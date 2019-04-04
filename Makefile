@@ -3,7 +3,7 @@ $(CURDIR)/node_modules: package.json
 	touch $(CURDIR)/node_modules
 
 build: $(CURDIR)/node_modules
-	$(CURDIR)/node_modules/.bin/coffee -t -b -o lib/ -c src/
+	$(CURDIR)/node_modules/.bin/coffee -b -o lib/ -c src/
 
 publish:
 	npm publish
