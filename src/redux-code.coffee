@@ -76,12 +76,32 @@ createActions = (prefix, creators...) ->
   return created
 
 skipMiddleware = (store) -> (next) -> (action) -> next(action) unless action.type is null
+reducerEnhancer = (createStore) -> (reducer, args...) ->
+    queue = []
+    schedule = (action) -> queue.push(action)
+
+    enhancedReducer = (state, action) ->
+        state = reducer(state, action)
+        if typeof(state) is 'function'
+            state = state(schedule, store.getState)
+        return state
+
+    store = createStore(enhancedReducer, args...)
+    return {
+        store...,
+        dispatch: (action) ->
+            action = store.dispatch(action)
+            while next = queue.shift()
+                action = store.dispatch(next)
+            return action
+    }
 
 module.exports = {
   SKIP
   DEFAULTS
 
   skipMiddleware
+  reducerEnhancer
 
   createActions
 

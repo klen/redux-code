@@ -1,4 +1,5 @@
 RC = require('../src/redux-code.coffee')
+Redux = require('redux')
 
 exports.ReduxCode =
 
@@ -82,5 +83,28 @@ exports.ReduxCode =
 
     state = reducer(state, type: 'TESTS/CUSTOM')
     test.equal(state.value, 'custom')
+
+    test.done()
+
+
+  'Enchance store': (test) ->
+
+    DEFAULT = value: 'default'
+    actions = RC.createActions('TESTS', {'sync', 'multi', 'double'})
+    reducer = RC.createReducer DEFAULT, {
+        [actions.TYPES.SYNC]: (state) -> { value: 'sync' }
+        [actions.TYPES.DOUBLE]: (state) -> {value: state.value * 2}
+        [actions.TYPES.MULTI]: (state) -> (schedule) ->
+            schedule actions.double()
+            schedule actions.double()
+            return { value: 1 }
+    }
+
+    store = Redux.createStore(reducer, {}, RC.reducerEnhancer)
+
+    store.dispatch actions.sync()
+    test.deepEqual(store.getState(), {value: 'sync'})
+    store.dispatch actions.multi()
+    test.deepEqual(store.getState(), {value: 4})
 
     test.done()
