@@ -76,7 +76,7 @@ createActions = (prefix, creators...) ->
   return created
 
 skipMiddleware = (store) -> (next) -> (action) -> next(action) unless action.type is null
-reducerEnhancer = (createStore) -> (reducer, args...) ->
+reducerEnhancer = (createStore) -> (reducer, initialState, enhancer) ->
     queue = []
     schedule = (action) -> queue.push(action)
 
@@ -85,7 +85,7 @@ reducerEnhancer = (createStore) -> (reducer, args...) ->
         state = state(schedule, store.getState) if isFunction(state)
         return state
 
-    store = createStore(enhancedReducer, args...)
+    store = createStore(enhancedReducer, initialState, enhancer)
     return {
         store...,
         dispatch: (action) ->
@@ -95,12 +95,37 @@ reducerEnhancer = (createStore) -> (reducer, args...) ->
             return action
     }
 
+combineReducers = (reducers) -> (state={}, action) ->
+    hasChanged = false
+    nextState = {}
+    callbacks = []
+
+    for k, r of reducers
+        previousReducerState = state[k]
+        nextReducerState = r(previousReducerState, action)
+        nextState[k] = nextReducerState
+        if isFunction(nextReducerState)
+            callbacks.push(k)
+            continue
+
+        hasChanged = hasChanged or nextReducerState != previousReducerState
+
+    if callbacks.length
+        return (schedule, getState) ->
+            for k in callbacks
+                nextState[k] = nextState[k](schedule, getState)
+            return nextState
+
+    return if hasChanged then nextState else state
+
+
 module.exports = {
   SKIP
   DEFAULTS
 
   skipMiddleware
   reducerEnhancer
+  combineReducers
 
   createActions
 

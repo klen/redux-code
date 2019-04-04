@@ -107,4 +107,45 @@ exports.ReduxCode =
     store.dispatch actions.multi()
     test.deepEqual(store.getState(), {value: 4})
 
+    actions = RC.createActions('TESTS', {'one', 'two', 'three', 'four', 'reset'})
+
+    reducer = RC.combineReducers
+
+        first: RC.createReducer 0, {
+
+            [actions.TYPES.ONE]: (state, action) -> (schedule) ->
+                schedule actions.two()
+                schedule actions.four()
+                return 1
+
+            [actions.TYPES.TWO]: (state, action) -> (schedule) ->
+                return 2
+
+            [actions.TYPES.RESET]: (state, action) ->
+                return 0
+            
+        }
+
+        last: RC.createReducer 0, {
+
+            [actions.TYPES.FOUR]: (state, action) -> (schedule) ->
+                schedule actions.three()
+                return 4
+
+            [actions.TYPES.THREE]: (state, action) ->
+                return 3
+
+            [actions.TYPES.RESET]: (state, action) ->
+                return 0
+
+        }
+
+    store = Redux.createStore(reducer, {}, RC.reducerEnhancer)
+
+    store.dispatch actions.one()
+    test.deepEqual(store.getState(), {first: 2, last: 3})
+
+    store.dispatch actions.reset()
+    test.deepEqual(store.getState(), {first: 0, last: 0})
+
     test.done()
