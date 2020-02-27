@@ -16,27 +16,34 @@ toSnakeCase = (s) ->
 
   return if s[0] == '_' then s.slice(1) else s
 
-# Wrap results into actions with types and payloads
-wrapCreator = (type, creator) -> (args...) ->
-  action = creator(args...)
+# Decorate results into actions with types and payloads
+buildCreator = (type, creator) -> (args...) ->
 
-  return {type} unless action
+    # Run creator
+    res = creator(args...)
 
-  return SKIP if action is SKIP
+    return {type} unless res
+    return res if res is SKIP
 
-  # Support redux-thunk middleware
-  if isFunction(action)
-      m = wrapCreator(type, action)
-      return (dispatch, args...) -> dispatch m(dispatch, args...)
+    # Support redux-thunk middleware
+    if isFunction(res)
+        fn = buildCreator(type, res)
+        return (dispatch, getState, extra) ->
+            res = fn(dispatch, getState, extra)
+            return res if res is SKIP
+            dispatch res
 
-  # Support promises (requires redux-thunk)
-  if isFunction(action.then)
-    m = wrapCreator(type, identity)
-    return (dispatch) -> action.then (a) ->
-        dispatch m(a)
-        return a
+    # Support promises (requires redux-thunk)
+    if isFunction(res.then)
+        fn = buildCreator(type, identity)
+        return (dispatch) ->
+            r = await res
+            res = fn(r)
+            dispatch(res) unless res is SKIP
+            return r
 
-  return if action.type then action else type: type, payload: action
+    res = { type, payload: res } unless res.type
+    return res
 
 commonReducer = (TYPES, DEFAULT) ->
   reducers = {}
@@ -60,18 +67,18 @@ createReducer = (DEFAULT={}, mixins...) ->
 createActions = (prefix, creators...) ->
 
   created = TYPES: {}
+  creator = Object.assign(creators...)
 
-  for creator in creators
-    for name, actionCreator of creator
+  for name, actionCreator of creator
 
-      actionType = type = toSnakeCase(name).toUpperCase()
-      actionType = "#{prefix}#{DEFAULTS.JOIN}#{actionType}" if prefix
+    actionType = type = toSnakeCase(name).toUpperCase()
+    actionType = "#{prefix}#{DEFAULTS.JOIN}#{actionType}" if prefix
 
-      actionCreator = identity unless isFunction(actionCreator)
-      actionCreator = wrapCreator(actionType, actionCreator.bind(created))
+    actionCreator = identity unless isFunction(actionCreator)
+    actionCreator = buildCreator(actionType, actionCreator.bind(created))
 
-      created.TYPES[type] = actionType
-      created[name] = actionCreator
+    created.TYPES[type] = actionType
+    created[name] = actionCreator
 
   return created
 

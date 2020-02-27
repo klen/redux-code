@@ -38,26 +38,27 @@ exports.ReduxCode =
     )
 
     # Test Redux-thunk
-    types = []
+    log = []
 
     dispatch = (action) ->
         return action(dispatch) if typeof action is 'function'
-        types.push(action.type)
+        log.push(action.type) if action.type
+        return action
 
-    actions.thunkAction()(dispatch)
+    dispatch actions.thunkAction()
 
-    test.deepEqual(types, ['TESTS/CUSTOM_ACTION', 'TESTS/THUNK_ACTION'])
+    test.deepEqual(log, ['TESTS/CUSTOM_ACTION', 'TESTS/THUNK_ACTION'])
 
-    test.deepEqual(actions.skippedAction(), type: null)
+    test.deepEqual(actions.skippedAction(), RC.SKIP)
 
     # Test Promises
-    dispatch = (action) ->
-        test.deepEqual(action, { type: 'TESTS/PROMISE_ACTION', payload: 'promise' })
-        test.done()
-
-    actions.promiseAction()(dispatch).then (r) ->
+    log.length = 0
+    res = dispatch actions.promiseAction()
+    res.then (r) ->
         test.deepEqual(r, 'promise')
+        test.deepEqual(log, ['TESTS/PROMISE_ACTION'])
 
+    test.done()
 
   'Create reducers': (test) ->
 
