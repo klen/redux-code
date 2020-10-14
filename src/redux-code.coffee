@@ -45,15 +45,15 @@ buildCreator = (type, creator) -> (args...) ->
     res = { type, payload: res } unless res.type
     return res
 
-commonReducer = (TYPES, DEFAULT) ->
+commonReducer = (actions, DEFAULT) ->
   reducers = {}
-  reducers[TYPES.UPDATE or 'UPDATE'] = (state, action) -> {state..., action.payload...}
-  reducers[TYPES.RESET or 'RESET'] = (state, action) -> DEFAULT
+  reducers[actions.TYPES.UPDATE or 'UPDATE'] = (state, action) -> {state..., action.payload...}
+  reducers[actions.TYPES.RESET or 'RESET'] = (state, action) -> DEFAULT
   return reducers
 
-initialReducer = (TYPES) ->
+initialReducer = (actions) ->
   reducers = {}
-  reducers[TYPES.INIT or 'INIT'] = (state, action) -> {state..., inited: true}
+  reducers[actions.TYPES.INIT or 'INIT'] = (state, action) -> {state..., inited: true}
   return reducers
 
 createReducer = (DEFAULT={}, mixins...) ->
