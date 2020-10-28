@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "coffeescript": "^2.4.0",
-    "nodeunit": "^0.11.2"
+    "nodeunit": "^0.11.2",
+    "redux-thunk": "^2.3.0"
   }
 }

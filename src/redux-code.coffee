@@ -16,34 +16,52 @@ toSnakeCase = (s) ->
 
   return if s[0] == '_' then s.slice(1) else s
 
+
 # Decorate results into actions with types and payloads
-buildCreator = (type, creator) -> (args...) ->
-
-    # Run creator
-    res = creator(args...)
-
+processRes = (type, res) ->
     return {type} unless res
     return res if res is SKIP
 
     # Support redux-thunk middleware
     if isFunction(res)
-        fn = buildCreator(type, res)
-        return (dispatch, getState, extra) ->
-            res = fn(dispatch, getState, extra)
+        return (dispatch) ->
+            res = processRes(type, dispatch(res))
             return res if res is SKIP
-            dispatch res
+            return dispatch(res)
 
     # Support promises (requires redux-thunk)
     if isFunction(res.then)
-        fn = buildCreator(type, identity)
         return (dispatch) ->
-            r = await res
-            res = fn(r)
+            value = await res
+            res = processRes(type, value)
             dispatch(res) unless res is SKIP
-            return r
+            return value
 
     res = { type, payload: res } unless res.type
     return res
+
+buildCreator = (type, creator) ->
+    fn = (args...) -> processRes type, creator(args...)
+    fn.rcAction = true
+    return fn
+
+createActions = (prefix, creators...) ->
+
+  created = TYPES: {}
+  creator = Object.assign(creators...)
+
+  for name, actionCreator of creator
+
+    actionType = type = toSnakeCase(name).toUpperCase()
+    actionType = "#{prefix}#{DEFAULTS.JOIN}#{actionType}" if prefix
+
+    actionCreator = identity unless isFunction(actionCreator)
+    actionCreator = buildCreator(actionType, actionCreator.bind(created)) unless actionCreator.rcAction
+
+    created.TYPES[type] = actionType
+    created[name] = actionCreator
+
+  return created
 
 commonReducer = (actions, DEFAULT) ->
   reducers = {}
@@ -64,43 +82,7 @@ createReducer = (DEFAULT={}, mixins...) ->
     reducer = reducers[action.type]
     return if reducer then reducer(state, action) else state
 
-createActions = (prefix, creators...) ->
-
-  created = TYPES: {}
-  creator = Object.assign(creators...)
-
-  for name, actionCreator of creator
-
-    actionType = type = toSnakeCase(name).toUpperCase()
-    actionType = "#{prefix}#{DEFAULTS.JOIN}#{actionType}" if prefix
-
-    actionCreator = identity unless isFunction(actionCreator)
-    actionCreator = buildCreator(actionType, actionCreator.bind(created))
-
-    created.TYPES[type] = actionType
-    created[name] = actionCreator
-
-  return created
-
 skipMiddleware = (store) -> (next) -> (action) -> next(action) unless action.type is null
-reducerEnhancer = (createStore) -> (reducer, initialState, enhancer) ->
-    queue = []
-    schedule = (action) -> queue.push(action)
-
-    enhancedReducer = (state, action) ->
-        state = reducer(state, action)
-        state = state(schedule, store.getState) if isFunction(state)
-        return state
-
-    store = createStore(enhancedReducer, initialState, enhancer)
-    return {
-        store...,
-        dispatch: (action) ->
-            action = store.dispatch(action)
-            while next = queue.shift()
-                action = store.dispatch(next)
-            return action
-    }
 
 combineReducers = (reducers) -> (state={}, action) ->
     hasChanged = false
@@ -130,13 +112,12 @@ module.exports = {
   SKIP
   DEFAULTS
 
-  skipMiddleware
-  reducerEnhancer
-  combineReducers
-
   createActions
 
   createReducer
   commonReducer
   initialReducer
+
+  skipMiddleware
+  combineReducers
 }

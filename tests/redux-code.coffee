@@ -36,20 +36,25 @@ exports.ReduxCode =
     test.deepEqual(actions.mixinAction(),
       type: 'TESTS/MIXIN_ACTION'
     )
+    test.deepEqual(actions.skippedAction(), RC.SKIP)
+
+    log = []
+    logMiddleware = (store) -> (next) -> (action) ->
+        log.push(action.type)
+        return next(action)
+
+    { dispatch } = Redux.createStore(((state) -> state), {}, Redux.applyMiddleware(require('redux-thunk').default, logMiddleware))
 
     # Test Redux-thunk
-    log = []
-
-    dispatch = (action) ->
-        return action(dispatch) if typeof action is 'function'
-        log.push(action.type) if action.type
-        return action
-
     dispatch actions.thunkAction()
-
     test.deepEqual(log, ['TESTS/CUSTOM_ACTION', 'TESTS/THUNK_ACTION'])
 
-    test.deepEqual(actions.skippedAction(), RC.SKIP)
+    actions2 = RC.createActions 'tests2',
+        thunkAction2: actions.thunkAction
+
+    log.length = 0
+    dispatch actions2.thunkAction2()
+    test.deepEqual(log, ['TESTS/CUSTOM_ACTION', 'TESTS/THUNK_ACTION'])
 
     # Test Promises
     log.length = 0
@@ -84,69 +89,5 @@ exports.ReduxCode =
 
     state = reducer(state, type: 'TESTS/CUSTOM')
     test.equal(state.value, 'custom')
-
-    test.done()
-
-
-  'Enchance store': (test) ->
-
-    DEFAULT = value: 'default'
-    actions = RC.createActions('TESTS', {'sync', 'multi', 'double'})
-    reducer = RC.createReducer DEFAULT, {
-        [actions.TYPES.SYNC]: (state) -> { value: 'sync' }
-        [actions.TYPES.DOUBLE]: (state) -> {value: state.value * 2}
-        [actions.TYPES.MULTI]: (state) -> (schedule) ->
-            schedule actions.double()
-            schedule actions.double()
-            return { value: 1 }
-    }
-
-    store = Redux.createStore(reducer, {}, RC.reducerEnhancer)
-
-    store.dispatch actions.sync()
-    test.deepEqual(store.getState(), {value: 'sync'})
-    store.dispatch actions.multi()
-    test.deepEqual(store.getState(), {value: 4})
-
-    actions = RC.createActions('TESTS', {'one', 'two', 'three', 'four', 'reset'})
-
-    reducer = RC.combineReducers
-
-        first: RC.createReducer 0, {
-
-            [actions.TYPES.ONE]: (state, action) -> (schedule) ->
-                schedule actions.two()
-                schedule actions.four()
-                return 1
-
-            [actions.TYPES.TWO]: (state, action) -> (schedule) ->
-                return 2
-
-            [actions.TYPES.RESET]: (state, action) ->
-                return 0
-            
-        }
-
-        last: RC.createReducer 0, {
-
-            [actions.TYPES.FOUR]: (state, action) -> (schedule) ->
-                schedule actions.three()
-                return 4
-
-            [actions.TYPES.THREE]: (state, action) ->
-                return 3
-
-            [actions.TYPES.RESET]: (state, action) ->
-                return 0
-
-        }
-
-    store = Redux.createStore(reducer, {}, RC.reducerEnhancer)
-
-    store.dispatch actions.one()
-    test.deepEqual(store.getState(), {first: 2, last: 3})
-
-    store.dispatch actions.reset()
-    test.deepEqual(store.getState(), {first: 0, last: 0})
 
     test.done()

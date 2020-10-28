@@ -1,9 +1,10 @@
+build: $(CURDIR)/node_modules
+	@rm -rf $(CURDIR)/lib/*
+	$(CURDIR)/node_modules/.bin/coffee -b -o lib/ -c src/
+
 $(CURDIR)/node_modules: package.json
 	npm install
 	touch $(CURDIR)/node_modules
-
-build: $(CURDIR)/node_modules
-	$(CURDIR)/node_modules/.bin/coffee -b -o lib/ -c src/
 
 publish:
 	npm publish
