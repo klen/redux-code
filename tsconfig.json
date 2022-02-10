@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "target": "es2016",
+    "module": "CommonJS",
+    "declaration": true,
+    "outDir": "./dist/cjs"
+  },
+  "include": [
+    "src/*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "src/*.test.ts"
+  ]
+}

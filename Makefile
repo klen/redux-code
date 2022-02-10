@@ -1,6 +1,4 @@
-build: $(CURDIR)/node_modules
-	@rm -rf $(CURDIR)/lib/*
-	$(CURDIR)/node_modules/.bin/coffee -b -o lib/ -c src/
+all: build
 
 $(CURDIR)/node_modules: package.json
 	npm install
@@ -10,7 +8,14 @@ publish:
 	npm publish
 
 test t: $(CURDIR)/node_modules
-	node tests/runner.js
+	npx ts-mocha
+
+build: $(CURDIR)/node_modules
+	rm -rf dist
+	npx tsc -b
+
+lint:
+	npx eslint src --ext .ts
 
 RELEASE ?= patch
 release:

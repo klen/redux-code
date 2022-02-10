@@ -18,72 +18,86 @@ npm install --save redux-code
 import {createActions, SKIP, createReducer} from 'redux-code'
 
 
-// Generate actions
-const actions = createActions('PREFIX', {
+// Generate actions builders
+const actions = createActions(
 
-    // autogenerate action (payload) => {type: 'init', payload: payload}
-    init: true,
+    // Optional prefix for actions types
+    'prefix/',
 
-    // autogenerate action () => {type: 'custom', payload: 'payload'}
-    custom: => 'payload'
+    // Basic actions scheme
+    {
 
-    // redux-thunk is supported
-    doAsync: (payload) => (dispatch, getState) =>
+        // autogenerate action (payload) => {type: 'init', payload: payload}
+        init: true,
 
-        // this points on the actions
-        dispatch( this.custom() )
+        // autogenerate action () => {type: 'custom', payload: payload}
+        update: payload => payload,
 
-        // ability to skip an action
-        state = getState()
-        if (state.inited) return SKIP
-        
-        return axios.get('/some').then( () => dispatch(this.init()) )
+        // redux-thunk is supported
+        doThunk: () => async (dispatch, getState) => {
+
+            // run nearest action
+            dispatch(actions.build.update({value: 42}))
+
+            // ability to skip an action
+            const state = getState()
+            if (state.inited) return SKIP
+
+            // Emulate async io
+            await Promise.resolve(true)
+
+            dispatch(actions.build.init())
+
+        }
     
-})
+    }
+)
 
 // Use your actions
-dispatch(
-    actions.doAsync()
-).then(...)
+await dispatch(
+    actions.doThunk()
+)
 
 // Actions types are generated
-// actions.TYPES
-// actions.TYPES.INIT ('PREFIX/INIT'), actions.TYPES.CUSTOM ('PREFIX/CUSTOM'), actions.TYPES.DO_ASYNC ('PREFIX/DO_ASYNC')
+// actions.types
+// actions.types.init ('optional-prefix/init'), actions.types.update ('optional-prefix/update'), actions.types.doThunk ('optional-prefix/doThunk')
+
+// Actions builders are generated
+// actions.build
+// actions.build.init() ({type: 'prefix/init', payload: true}), actions.build.update(42) ({type: 'prefix/update', payload: 42}), actions.types.doThunk() ...
 
 
-// You can mix your actions as well
-commonActions = {
+// You can mix your actions schemas as well
+const commonActionsScheme = {
     update: true,
     reset: true
 }
 
-const actions = createActions('APP', commonActions, {
+const actions = createActions('APP', commonActionsScheme, {
     ...
 })
 
 
 // Let's see how create a reducer
-
-const DEFAULT = {
+const DEFAULT_STATE = {
     inited: false,
     value: null
 }
 
 
-const reducer = createReducer(DEFAULT, {
-    [actions.TYPES.UPDATE]: (state, action) => {state..., action.payload...},
-    [actions.TYPES.RESET]: (state) => DEFAULT
+const reducer = createReducer(DEFAULT_STATE, {
+    [actions.types.update]: (state, action) => ({...state, ...action.payload}),
+    [actions.types.init]: (state) => ({...state, inited: true})
 })
 
 
 // You can mix your reducers as well
-
-const CommonReducerFactory = (TYPES, DEFAULT) => {
-    [TYPES.UPDATE]: (state, action) => {state..., action.payload...},
-    [TYPES.RESET]: (state) => DEFAULT
+const CommonReducerFactory = (types, DEFAULT) => {
+    [types.UPDATE]: (state, action) => {...state, ...action.payload},
+    [types.RESET]: (state) => DEFAULT
 }
 
-const reducer = createReducer(DEFAULT, CommonReducerFactory(actions.TYPES, DEFAULT), {
+const reducer = createReducer(DEFAULT, CommonReducerFactory(actions.types, DEFAULT), {
     'CUSTOM': (state) => {state..., custom: true}
 })
 
