@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import isPlainObject from 'lodash-es/isPlainObject'
 import { Action, AnyAction } from 'redux'
-import { IActionsTypes } from '.'
-import { IActions, Dispatch, Thunk } from './types'
+import { Actions, Dispatch, Thunk, ActionCreator } from './types'
 
 /**
  * SKIP actions
@@ -42,70 +40,29 @@ function processResult(type: string, result: any) {
 /**
  * Build an action creator
  */
-export function buildActionCreator<P extends Action>(type: string, payload: P): () => P
-export function buildActionCreator<T extends string, P extends Function>(
-  type: T,
-  payload: P,
-): (...args) => P
-export function buildActionCreator<T extends string, P extends Exclude<any, Function>>(
-  type: T,
-  payload: P,
-): () => { type: T; payload: P }
 export function buildActionCreator(type: string, payload: any) {
-  if (isPlainObject(payload) && payload.type) return () => payload
   const action = payload instanceof Function ? payload : () => payload
-  return (...args: unknown[]) => processResult(type, action(...args))
+  const creator = (...args: unknown[]) => processResult(type, action(...args))
+  creator.toString = () => `${type}`
+  creator.type = creator.toString()
+  return creator
 }
 
 /**
  * A helper to create actions
  */
-export function createActions<M1>(prefix: string, m1: M1): { types: IActionsTypes; build: M1 }
-export function createActions<M1, M2>(
-  prefix: string,
-  m1: M1,
-  m2: M2,
-): { types: IActionsTypes; build: M1 & M2 }
-export function createActions<M1, M2, M3>(
-  prefix: string,
-  m1: M1,
-  m2: M2,
-  m3: M3,
-): { types: IActionsTypes; build: M1 & M2 & M3 }
-export function createActions<M1, M2, M3, M4>(
-  prefix: string,
-  m1: M1,
-  m2: M2,
-  m3: M3,
-  m4: M4,
-): { types: IActionsTypes; build: M1 & M2 & M3 & M4 }
-export function createActions<M1, M2, M3, M4, M5>(
-  prefix: string,
-  m1: M1,
-  m2: M2,
-  m3: M3,
-  m4: M4,
-  m5: M5,
-): { types: IActionsTypes; build: M1 & M2 & M3 & M4 & M5 }
-export function createActions(prefix: string, ...mixins: object[]): IActions {
-  const actions: IActions = { types: {}, build: {} }
+export function createActions<M1>(prefix: string, m1: M1): Actions<M1>
+export function createActions<M1, M2>(prefix: string, m1: M1, m2: M2): Actions<M1 & M2>
+export function createActions<M1, M2, M3>(prefix: string, m1: M1, m2: M2, m3: M3): Actions<M1 & M2 & M3>
+export function createActions<M1, M2, M3, M4>(prefix: string, m1: M1, m2: M2, m3: M3): Actions<M1 & M2 & M3 & M4>
+export function createActions<M1, M2, M3, M4, M5>(prefix: string, m1: M1, m2: M2, m3: M3): Actions<M1 & M2 & M3 & M4 & M5>
+export function createActions(prefix: string, ...mixins: any[]) {
   const source = Object.assign({}, ...mixins)
+  const actions = {}
   for (const [name, payload] of Object.entries(source)) {
     const actionType = `${prefix || ''}${name}`
-    actions.build[name] = buildActionCreator(actionType, payload).bind(actions)
-    actions.types[name] = actionType
+    actions[name] = buildActionCreator(actionType, payload).bind(actions)
+    actions[name].type = actionType
   }
   return actions
 }
-
-const actions = createActions(
-  'test',
-  {
-    indent: () => 42,
-    some: () => 12,
-  },
-  {
-    diff: () => 77,
-  },
-)
-const test = actions.build.indent()

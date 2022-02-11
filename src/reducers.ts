@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Action, Reducer, ReducersMapObject } from 'redux'
-import { IActionsTypes } from './types'
+import { Action, AnyAction, Reducer, ReducersMapObject } from 'redux'
+import { Actions } from './types'
 
 /**
  * A helper to create reducers
  */
-export const createReducer = function (DEFAULT = {}, ...mixins: ReducersMapObject[]): Reducer<any> {
+export const createReducer = function (DEFAULT = {}, ...mixins: object[]): Reducer<any> {
   const reducers = Object.assign({}, ...mixins)
   return function (state = DEFAULT, action: Action) {
     const reducer = reducers[action.type]
@@ -18,18 +18,15 @@ export const createReducer = function (DEFAULT = {}, ...mixins: ReducersMapObjec
  * Common reducer.
  * Supports UPDATE and RESET actions
  */
-export const commonReducer = (types: IActionsTypes, DEFAULT: any): ReducersMapObject => ({
-  [types.reset || 'reset']: () => DEFAULT,
-  [types.update || 'update']: (state, action) => ({
-    ...state,
-    ...action.payload,
-  }),
+export const commonReducer = (actions: Actions<Record<string, string>>, DEFAULT: any): ReducersMapObject<any, AnyAction> => ({
+  [actions.reset?.type ?? 'reset']: () => DEFAULT,
+  [actions.update?.type ?? 'update']: (state: object, {payload}) => ({ ...state, ...payload }),
 })
 
 /**
  * Initial reducer.
  * Supports INIT action
  */
-export const initialReducer = (types: IActionsTypes): ReducersMapObject => ({
-  [types.init || 'init']: (state) => ({ ...state, inited: true }),
+export const initialReducer = (actions: Actions<Record<string, string>>): ReducersMapObject => ({
+  [actions.init?.type ?? 'init']: (state) => ({ ...state, inited: true }),
 })

@@ -14,7 +14,7 @@ describe('readme', () => {
 
       doThunk: () => async (dispatch, getState) => {
         // run nearest action
-        dispatch(actions.build.update({ value: 42 }))
+        dispatch(actions.update({ value: 42 }))
 
         // ability to skip an action
         const state = getState()
@@ -23,12 +23,12 @@ describe('readme', () => {
         // Emulate async io
         await Promise.resolve(true)
 
-        dispatch(actions.build.init())
+        dispatch(actions.init())
       },
     })
     expect(actions).toBeTruthy()
 
-    await store.dispatch(actions.build.doThunk())
+    await store.dispatch(actions.doThunk())
     const logs = store.getActions()
     expect(logs).toEqual([
       { type: 'optional-prefix/update', payload: { value: 42 } },
@@ -41,18 +41,17 @@ describe('readme', () => {
     }
 
     const reducer = createReducer(DEFAULT_STATE, {
-      [actions.types.init]: (state) => ({ ...state, inited: true }),
-      [actions.types.update]: (state, action) => ({
+      [actions.init.type]: (state) => ({ ...state, inited: true }),
+      [actions.update.type]: (state, action) => ({
         ...state,
         ...action.payload,
       }),
-      [actions.types.reset]: () => DEFAULT_STATE,
     })
     expect(reducer).toBeTruthy()
 
-    let state = reducer(undefined, actions.build.init())
+    let state = reducer(undefined, actions.init())
     expect(state).toEqual({ inited: true, value: null })
-    state = reducer(state, actions.build.update({ value: 42 }))
+    state = reducer(state, actions.update({ value: 42 }))
     expect(state).toEqual({ inited: true, value: 42 })
   })
 })

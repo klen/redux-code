@@ -1,22 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Action, AnyAction } from 'redux'
+import { AnyAction } from 'redux'
 
-export type IActionBuilder = (...arguments_: any) => AnyAction
+export type Thunk = (dispatch: Dispatch, getState?: GetState) => any
+export type Dispatch = (action: AnyAction | Thunk) => AnyAction
 
-export interface IActionsBuilders {
-  [index: string]: IActionBuilder
+export interface ActionCreator<T> {
+  type: T
+  (...arguments_: any): AnyAction | Thunk
 }
 
-export interface IActions {
-  build: IActionsBuilders
-  types: IActionsTypes
-}
+// export type ActionCreator = (...arguments_: any) => AnyAction | Thunk
 
-export interface IActionsTypes {
-  [index: string]: string
+export type Actions<Type> = {
+  [K in keyof Type]: ActionCreator<string>
 }
 
 type GetState = () => any
-export type Thunk = (dispatch: Dispatch, getState?: GetState) => any
-export type Dispatch = (action: AnyAction | Thunk) => AnyAction

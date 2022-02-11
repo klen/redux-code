@@ -1,9 +1,10 @@
 # redux-code
 
+[![Tests](https://github.com/klen/redux-code/actions/workflows/test.yml/badge.svg)](https://github.com/klen/redux-code/actions/workflows/test.yml)
+[![Build](https://github.com/klen/redux-code/actions/workflows/build.yml/badge.svg)](https://github.com/klen/redux-code/actions/workflows/build.yml)
 [![npm version](https://badge.fury.io/js/redux-code.svg)](https://badge.fury.io/js/redux-code)
-[![travis build](https://travis-ci.org/klen/redux-code.svg?branch=develop)](https://travis-ci.org/klen/redux-code)
 
-Redux creators for actions and reducers
+Redux helpers
 
 ## Installation
 

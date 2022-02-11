@@ -12,9 +12,12 @@ describe('actions:', () => {
     expect(buildActionCreator).toBeTruthy()
 
     const action1 = buildActionCreator('test1', (v: any) => v)
+    expect(action1).toBeTruthy()
+    expect(action1.type).toBe('test1')
     expect(action1(22)).toEqual({ type: 'test1', payload: 22 })
 
     const action2 = buildActionCreator('test2', 42)
+    expect(action2.type).toBe('test2')
     expect(action2()).toEqual({ type: 'test2', payload: 42 })
   })
 
@@ -22,16 +25,14 @@ describe('actions:', () => {
     expect(createActions).toBeTruthy()
     const actions = createActions('prefix:', { testOne: 11 }, { test2: 22 })
     expect(actions).toBeTruthy()
-    expect(actions.build).toBeTruthy()
-    expect(actions.types).toBeTruthy()
-    expect(actions.types.testOne).toBe('prefix:testOne')
-    expect(actions.types.test2).toBe('prefix:test2')
-    expect(actions.build.testOne()).toEqual({
-      type: actions.types.testOne,
+    expect(actions.testOne.type).toBe('prefix:testOne')
+    expect(actions.test2.type).toBe('prefix:test2')
+    expect(actions.testOne()).toEqual({
+      type: actions.testOne.type,
       payload: 11,
     })
-    expect(actions.build.test2()).toEqual({
-      type: actions.types.test2,
+    expect(actions.test2()).toEqual({
+      type: actions.test2.type,
       payload: 22,
     })
   })
@@ -40,14 +41,14 @@ describe('actions:', () => {
     const actions = createActions('test/', {
       testOne: 'testOne',
       testTwo: function () {
-        return actions.build.testOne()
+        return actions.testOne()
       },
     })
-    expect(actions.build.testOne()).toEqual({
+    expect(actions.testOne()).toEqual({
       type: 'test/testOne',
       payload: 'testOne',
     })
-    expect(actions.build.testTwo()).toEqual({
+    expect(actions.testTwo()).toEqual({
       type: 'test/testOne',
       payload: 'testOne',
     })
@@ -67,12 +68,12 @@ describe('actions:', () => {
     it('basic', () => {
       const actions = createActions('test/', {
         someAction: true,
-        skip: () => ({ type: actions.types.someAction }),
+        skip: () => ({ type: actions.someAction.type }),
         skipCond: (cond: boolean) => (dispatch: typeof store.dispatch) =>
-          cond ? dispatch(actions.build.skip()) : false,
+          cond ? dispatch(actions.skip()) : false,
       })
-      store.dispatch(actions.build.skipCond(true))
-      store.dispatch(actions.build.skipCond(false))
+      store.dispatch(actions.skipCond(true))
+      store.dispatch(actions.skipCond(false))
 
       const log = store.getActions()
       expect(log).toEqual([{ type: 'test/someAction' }])
@@ -85,7 +86,7 @@ describe('actions:', () => {
           return 42
         },
       })
-      await store.dispatch(actions.build.asyncAction())
+      await store.dispatch(actions.asyncAction())
       await Promise.resolve(true)
       const log = store.getActions()
       expect(log).toEqual([{ type: 'test/asyncAction', payload: 42 }])
