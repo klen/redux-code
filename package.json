@@ -4,9 +4,9 @@
   "license": "ISC",
   "version": "0.3.4",
   "description": "Redux helpers for actions and reducers",
-  "main": "dist/cjs/redux-code.js",
-  "module": "dist/cjs/redux-code.js",
-  "types": "dist/cjs/redux-code.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/cjs/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/klen/redux-code.git"
