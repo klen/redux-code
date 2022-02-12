@@ -45,7 +45,10 @@ describe('readme', () => {
       },
     })
     store.dispatch(actions.init())
-    expect(store.getActions()).toEqual([{ type: 'thunk:update', payload: { inited: true } }])
+    expect(store.getActions()).toEqual([
+      { type: actions.update.type, payload: { inited: true } },
+      { type: actions.init.type },
+    ])
 
     store.reset()
     const res = await store.dispatch(actions.load())
@@ -80,7 +83,11 @@ describe('readme', () => {
     expect(commentsActions.disable.type).toEqual('comments/disable')
 
     await store.dispatch(usersActions.disable())
-    expect(store.getActions()).toEqual([{ type: 'users/update', payload: { disabled: true } }, { type: 'users/save' }])
+    expect(store.getActions()).toEqual([
+      { type: 'users/update', payload: { disabled: true } },
+      { type: 'users/save' },
+      { type: 'users/disable' },
+    ])
   })
 
   it('createReducer', async () => {

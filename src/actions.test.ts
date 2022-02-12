@@ -69,11 +69,15 @@ describe('actions:', () => {
           cond ? dispatch(actions.action()) : false
         },
       })
-      store.dispatch(actions.thunk(true))
       store.dispatch(actions.thunk(false))
+      store.dispatch(actions.thunk(true))
 
       const log = store.getActions()
-      expect(log).toEqual([{ type: 'test/action', payload: true }])
+      expect(log).toEqual([
+        { type: actions.thunk.type },
+        { type: actions.action.type, payload: true },
+        { type: actions.thunk.type },
+      ])
     })
 
     it('async', async () => {

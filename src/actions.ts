@@ -21,7 +21,11 @@ function processResult<T extends string, R extends undefined>(type: T, result: R
 function processResult<T extends string, R>(type: T, result: R): { type: T; payload: R }
 function processResult(type: string, result: any) {
   // Support redux-thunk
-  if (result instanceof Function) return result
+  if (result instanceof Function)
+    return (dispatch: ThunkDispatch<any, any, any>) => {
+      const action = processResult(type, dispatch(result))
+      return dispatch(action)
+    }
 
   // Support promises with redux-thunk
   if (result instanceof Promise)
