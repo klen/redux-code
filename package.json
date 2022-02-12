@@ -2,7 +2,7 @@
   "name": "redux-code",
   "author": "Kirill Klenov <horneds@gmail.com>",
   "license": "ISC",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Redux helpers for actions and reducers",
   "main": "dist/cjs/redux-code.js",
   "module": "dist/cjs/redux-code.js",
