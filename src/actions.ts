@@ -3,7 +3,7 @@
 
 import { Action, AnyAction } from 'redux'
 import { ThunkAction, ThunkDispatch } from 'redux-thunk'
-import { Actions, ActionCreator } from './types'
+import { Actions } from './types'
 
 /**
  * SKIP actions
