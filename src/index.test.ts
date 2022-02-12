@@ -13,7 +13,6 @@ describe('module', () => {
     // Mixins
     expect(Module.commonReducer).toBeTruthy()
     expect(Module.initReducer).toBeTruthy()
-    expect(Module.initActions).toBeTruthy()
     expect(Module.commonActions).toBeTruthy()
   })
 })
