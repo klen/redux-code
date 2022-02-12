@@ -5,7 +5,7 @@ node_modules: package.json
 	touch node_modules
 
 build: node_modules
-	@rm -rf dist
+	@rm -rf dist es
 	@npx tsc
 	@npx tsc -p tsconfig-es.json
 	@npx prettier -w es/*
