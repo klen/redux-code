@@ -22,7 +22,6 @@ test t: node_modules
 RELEASE ?= patch
 release patch:
 	bumpversion $(RELEASE)
-	make publish
 	git checkout master
 	git merge develop
 	git checkout develop
