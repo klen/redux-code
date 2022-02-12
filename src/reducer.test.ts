@@ -24,11 +24,9 @@ describe('reducers:', () => {
     const reducer = createReducer(initial, {
       push: (state: typeof initial) => {
         state.data.push(state.data.length)
-        return state
       },
       update: (state: typeof initial) => {
         state.value = !state.value
-        return state
       },
     })
     let state = reducer(undefined, { type: 'any' })
