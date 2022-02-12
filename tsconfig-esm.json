@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "ES2015",
+    "moduleResolution": "node",
+    "declaration": true,
+    "outDir": "./dist/esm",
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "src/*.test.ts"
+  ]
+}
