@@ -3,8 +3,7 @@
     "noImplicitAny": false,
     "target": "ESNext",
     "module": "CommonJS",
-    "declaration": true,
-    "outDir": "./dist/cjs"
+    "outDir": "./dist"
   },
   "include": [
     "src/*.ts"

@@ -7,8 +7,8 @@ node_modules: package.json
 build: node_modules
 	@rm -rf dist
 	@npx tsc
-	@npx tsc -p tsconfig-esm.json
-	@npx prettier -w dist/**/*.*s
+	@npx tsc -p tsconfig-es.json
+	@npx prettier -w es/*
 
 publish:
 	npm publish
