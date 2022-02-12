@@ -8,9 +8,9 @@ A simple set of tools to make using Redux easier
 
 Features:
 
-* (createReducer)[#createreducer] -- A utility to create reducers (with immer support)
-* (createActions)[#createactions] -- A utility to create actions (with thunk, promises support)
-* (skipMiddleware)[#skipmiddleware] -- A Redux middleware to add ability to skip actions
+* [createReducer](#createreducer) -- A utility to create reducers (with immer support)
+* [createActions](#createactions) -- A utility to create actions (with thunk, promises support)
+* [skipMiddleware](#skipmiddleware) -- A Redux middleware to add ability to skip actions
 
 ## Installation
 
