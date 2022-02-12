@@ -26,6 +26,7 @@ release patch:
 	git merge develop
 	git checkout develop
 	git push origin develop master
+	git push --tags
 
 minor:
 	make release RELEASE=minor
