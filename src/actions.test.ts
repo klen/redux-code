@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import thunk from 'redux-thunk'
 import { createActions, buildActionCreator, SKIP } from '../src'
@@ -16,7 +13,7 @@ describe('actions:', () => {
     expect(action1.type).toBe('test1')
     expect(action1(22)).toEqual({ type: 'test1', payload: 22 })
 
-    const action2 = buildActionCreator('test2', 42)
+    const action2 = buildActionCreator('test2', () => 42)
     expect(action2.type).toBe('test2')
     expect(action2()).toEqual({ type: 'test2', payload: 42 })
   })
@@ -41,7 +38,7 @@ describe('actions:', () => {
     const actions = createActions('test/', {
       testOne: 'testOne',
       testTwo: function () {
-        return actions.testOne()
+        return this.testOne()
       },
     })
     expect(actions.testOne()).toEqual({
@@ -65,18 +62,18 @@ describe('actions:', () => {
 
     beforeEach(store.reset)
 
-    it('basic', () => {
+    it('thunk', () => {
       const actions = createActions('test/', {
-        someAction: true,
-        skip: () => ({ type: actions.someAction.type }),
-        skipCond: (cond: boolean) => (dispatch: typeof store.dispatch) =>
-          cond ? dispatch(actions.skip()) : false,
+        action: true,
+        thunk: (cond: boolean) => (dispatch: typeof store.dispatch) => {
+          cond ? dispatch(actions.action()) : false
+        },
       })
-      store.dispatch(actions.skipCond(true))
-      store.dispatch(actions.skipCond(false))
+      store.dispatch(actions.thunk(true))
+      store.dispatch(actions.thunk(false))
 
       const log = store.getActions()
-      expect(log).toEqual([{ type: 'test/someAction' }])
+      expect(log).toEqual([{ type: 'test/action', payload: true }])
     })
 
     it('async', async () => {

@@ -29,6 +29,7 @@
     ]
   },
   "dependencies": {
+    "immer": "^9.0.12",
     "redux": "^4.1.2"
   },
   "devDependencies": {
@@ -48,13 +49,16 @@
     "semi": false,
     "trailingComma": "all",
     "singleQuote": true,
-    "printWidth": 100,
+    "printWidth": 120,
     "tabWidth": 2,
     "arrowParens": "always"
   },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src"
+    ],
     "setupFiles": [
       "<rootDir>/jest.setup.ts"
     ]

@@ -1,0 +1,27 @@
+name: Tests
+
+on:
+  push:
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@main
+
+      - name: Set up Node
+        uses: actions/setup-node@main
+        with:
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci --ignore-scripts
+
+      - name: Run linter
+        run: make lint
+
+      - name: Run tests
+        run: make test

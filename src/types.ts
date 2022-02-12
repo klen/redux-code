@@ -1,19 +1,27 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { AnyAction } from 'redux'
+import { Action } from 'redux'
+import { ThunkAction } from 'redux-thunk'
 
-export type Thunk = (dispatch: Dispatch, getState?: GetState) => any
-export type Dispatch = (action: AnyAction | Thunk) => AnyAction
+type ThunkActionAny = ThunkAction<any, any, any, any>
+type StringKeys<Object> = Extract<keyof Object, string>
 
-export interface ActionCreator<T> {
-  type: T
-  (...arguments_: any): AnyAction | Thunk
+export type ActionCreatorReturn<Result, TypeName extends string> = Result extends Action | Function
+  ? Result
+  : Result extends Promise<any>
+  ? ThunkActionAny
+  : { type: TypeName; payload: Result }
+
+export interface ActionCreator<Result, TypeName extends string> {
+  type: TypeName
+  toString(): TypeName
+  (...args: any): ActionCreatorReturn<Result, TypeName>
 }
 
-// export type ActionCreator = (...arguments_: any) => AnyAction | Thunk
-
-export type Actions<Type> = {
-  [K in keyof Type]: ActionCreator<string>
+export type Actions<Type, Prefix extends string = string> = {
+  [K in StringKeys<Type>]: ActionCreator<
+    Type[K] extends (...args: never[]) => any ? ReturnType<Type[K]> : Type[K],
+    `${Prefix}${K}`
+  >
 }
-
-type GetState = () => any

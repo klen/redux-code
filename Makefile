@@ -1,28 +1,35 @@
 all: build
 
-$(CURDIR)/node_modules: package.json
+node_modules: package.json
 	npm install
-	touch $(CURDIR)/node_modules
+	touch node_modules
+
+build: node_modules
+	@rm -rf dist
+	@npx tsc
+	@npx tsc -p tsconfig-esm.json
+	@npx prettier -w dist/**/*.*s
 
 publish:
 	npm publish
 
-test t: $(CURDIR)/node_modules
-	npx ts-mocha
+lint: node_modules
+	@./node_modules/.bin/eslint src/*.ts
 
-build: $(CURDIR)/node_modules
-	rm -rf dist
-	npx tsc -b
-
-lint:
-	npx eslint src --ext .ts
+test t: node_modules
+	@./node_modules/.bin/jest
 
 RELEASE ?= patch
-release:
-	make build
+release patch:
 	bumpversion $(RELEASE)
 	make publish
 	git checkout master
 	git merge develop
 	git checkout develop
 	git push origin develop master
+
+minor:
+	make release RELEASE=minor
+
+major:
+	make release RELEASE=major
