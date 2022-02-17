@@ -67,10 +67,18 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
  */
 export function createActions<
   Prefix extends string,
-  Ms extends Array<S[] | Record<S, V>>,
+  M extends S[] | Record<S, V>,
   S extends string,
   V extends string | number | boolean | object,
->(prefix: Prefix, ...mixins: Ms): Actions<Prefix, UnionToIntersection<MixType<Ms[number]>>> {
+>(prefix: Prefix, mixin: M): Actions<Prefix, MixType<M>>
+export function createActions<
+  Prefix extends string,
+  Ms extends Array<S[] | Record<S, unknown>>, // we have to use any to prevent never
+  // Ms extends Array<S[] | Record<S, V>>,
+  S extends string,
+  // V extends string | number | boolean | object,
+>(prefix: Prefix, ...mixins: Ms): Actions<Prefix, UnionToIntersection<MixType<Ms[number]>>>
+export function createActions(prefix, ...mixins) {
   const source = Object.assign(
     {},
     ...mixins.map((mix) =>
@@ -85,7 +93,7 @@ export function createActions<
     actions[name] = createAction(actionType, action)
     actions[name].type = actionType
   }
-  return actions as Actions<Prefix, UnionToIntersection<MixType<Ms[number]>>>
+  return actions
 }
 
 /**
