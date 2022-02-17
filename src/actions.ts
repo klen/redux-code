@@ -3,10 +3,11 @@
 
 import { Action, AnyAction } from 'redux'
 import { ThunkAction, ThunkDispatch } from 'redux-thunk'
-import { Actions, MixType } from './types'
+import { Actions, MixType, ActionCreatorResult } from './types'
 
 /**
- * SKIP actions
+ * A special object to make an ability to skip actions.
+ * This is only used with skipMiddleware
  */
 export const SKIP: AnyAction = { type: null }
 
@@ -44,10 +45,14 @@ function processResult(type: string, result: any) {
 /**
  * Build an action creator
  */
-export function createAction(type: string, action: Function) {
-  const creator = (...args: unknown[]) => processResult(type, action(...args))
-  creator.type = `${type}`
-  creator.toString = () => `${type}`
+export function createAction<TypeName extends string, Action extends (...args: any[]) => any>(
+  type: TypeName,
+  action: Action,
+) {
+  const creator = (...args: unknown[]): ActionCreatorResult<TypeName, ReturnType<Action>> =>
+    processResult(type, action(...args))
+  creator.type = type as TypeName
+  creator.toString = (): TypeName => type
   return creator
 }
 
@@ -82,6 +87,12 @@ export function createActions<
   }
   return actions as Actions<Prefix, UnionToIntersection<MixType<Ms[number]>>>
 }
+
+/**
+ * Just a helper to create identity actions
+ * createActions('prefix/', {update:identity, save:identity})
+ */
+export const identity = <T>(arg: T): T => arg
 
 // export function wrapAsync(action: ActionCreator<any>) {
 //   const wrapped = function (dispatch: ThunkDispatch<any, any, any>) {}

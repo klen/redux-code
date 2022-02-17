@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import thunk from 'redux-thunk'
-import { createActions, createAction, SKIP } from '../src'
+import { createActions, createAction, SKIP, identity } from '../src'
 import { skipMiddleware } from '../src'
 
 describe('actions', () => {
   it('createAction', () => {
     expect(createAction).toBeTruthy()
 
-    const action1 = createAction('test1', (v: any) => v)
+    const action1 = createAction('test1', identity)
     expect(action1).toBeTruthy()
     expect(action1.type).toBe('test1')
     expect(action1(22)).toEqual({ type: 'test1', payload: 22 })

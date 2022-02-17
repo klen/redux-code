@@ -6,7 +6,7 @@ import { ThunkAction } from 'redux-thunk'
 
 type StringKeys<Object> = Extract<keyof Object, string>
 
-export type ActionCreatorReturn<TypeName extends string, Result> = Result extends Action
+export type ActionCreatorResult<TypeName extends string, Result> = Result extends Action
   ? Result
   : Result extends (dispatch, getState: () => any, extraArgument: infer Arg) => infer R
   ? ThunkAction<R, any, Arg, any>
@@ -17,7 +17,7 @@ export type ActionCreatorReturn<TypeName extends string, Result> = Result extend
 export interface ActionCreator<TypeName extends string, Result> {
   type: TypeName
   toString(): TypeName
-  (...args: any): ActionCreatorReturn<TypeName, Result>
+  (...args: any): ActionCreatorResult<TypeName, Result>
 }
 
 export type MixType<T> = T extends string[]
