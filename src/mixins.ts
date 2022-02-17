@@ -8,7 +8,9 @@ import { Actions } from './types'
  */
 export const commonActions = {
   reset: undefined,
-  update: (payload: any) => payload,
+  update: function (payload: any) {
+    return payload
+  },
 }
 
 /**
@@ -16,7 +18,7 @@ export const commonActions = {
  * Supports UPDATE and RESET actions
  */
 export const commonReducer = (
-  actions: Actions<Record<string, string>>,
+  actions: Actions<Record<string, any>>,
   DEFAULT: any,
 ): ReducersMapObject<any, AnyAction> => ({
   [actions.reset?.type ?? 'reset']: () => DEFAULT,
@@ -27,6 +29,6 @@ export const commonReducer = (
  * Initial reducer.
  * Supports INIT action
  */
-export const initReducer = (actions: Actions<Record<string, string>>): ReducersMapObject => ({
+export const initReducer = (actions: Actions<Record<string, any>>): ReducersMapObject => ({
   [actions.init?.type ?? 'init']: (state) => ({ ...state, inited: true }),
 })

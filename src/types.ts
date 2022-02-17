@@ -13,7 +13,7 @@ export type ActionCreatorReturn<Result, TypeName extends string> = Result extend
   ? ThunkActionAny
   : { type: TypeName; payload: Result }
 
-export interface ActionCreator<Result, TypeName extends string> {
+export interface ActionCreator<Result, TypeName extends string = string> {
   type: TypeName
   toString(): TypeName
   (...args: any): ActionCreatorReturn<Result, TypeName>

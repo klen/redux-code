@@ -8,7 +8,9 @@ describe('mixins:', () => {
 
     const defaultState = { value: 'default' }
 
-    const actions = createActions('test/', commonActions)
+    const actions = createActions('test/', commonActions, {
+      another: () => true,
+    })
     expect(actions.update).toBeTruthy()
     expect(actions.reset).toBeTruthy()
 
@@ -33,7 +35,7 @@ describe('mixins:', () => {
 
     const defaultState = { inited: false }
 
-    const actions = createActions('test/', { init: undefined })
+    const actions = createActions('test/', { init: undefined, another: () => false })
     expect(actions.init).toBeTruthy()
 
     const mixin = initReducer(actions)

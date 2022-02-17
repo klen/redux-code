@@ -44,7 +44,7 @@ function processResult(type: string, result: any) {
 /**
  * Build an action creator
  */
-export function buildActionCreator(type: string, action: Function) {
+export function createAction(type: string, action: Function) {
   const creator = (...args: unknown[]) => processResult(type, action(...args))
   creator.type = `${type}`
   creator.toString = () => `${type}`
@@ -66,8 +66,16 @@ export function createActions(prefix: string, ...mixins: any[]) {
   for (let [name, payload] of Object.entries(source)) {
     const actionType = `${prefix || ''}${name}`
     const action = payload instanceof Function ? payload.bind(actions) : () => payload
-    actions[name] = buildActionCreator(actionType, action)
+    actions[name] = createAction(actionType, action)
     actions[name].type = actionType
   }
   return actions
 }
+
+// export function wrapAsync(action: ActionCreator<any>) {
+//   const wrapped = function (dispatch: ThunkDispatch<any, any, any>) {}
+//   wrapped.pending = createAction(`${action.type}:pending`, () => undefined)
+//   wrapped.fulfilled = createAction(`${action.type}:fulfilled`, () => undefined)
+//   wrapped.rejected = createAction(`${action.type}:rejected`, (err) => err)
+//   return wrapped
+// }

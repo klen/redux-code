@@ -4,7 +4,7 @@ describe('module', () => {
   it('test exports', () => {
     // Actions
     expect(Module.createActions).toBeTruthy()
-    expect(Module.buildActionCreator).toBeTruthy()
+    expect(Module.createAction).toBeTruthy()
     expect(Module.SKIP).toBeTruthy()
     // Reducer
     expect(Module.createReducer).toBeTruthy()

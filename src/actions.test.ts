@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import thunk from 'redux-thunk'
-import { createActions, buildActionCreator, SKIP } from '../src'
+import { createActions, createAction, SKIP } from '../src'
 import { skipMiddleware } from '../src'
 
 describe('actions:', () => {
   it('build creator', () => {
-    expect(buildActionCreator).toBeTruthy()
+    expect(createAction).toBeTruthy()
 
-    const action1 = buildActionCreator('test1', (v: any) => v)
+    const action1 = createAction('test1', (v: any) => v)
     expect(action1).toBeTruthy()
     expect(action1.type).toBe('test1')
     expect(action1(22)).toEqual({ type: 'test1', payload: 22 })
 
-    const action2 = buildActionCreator('test2', () => 42)
+    const action2 = createAction('test2', () => 42)
     expect(action2.type).toBe('test2')
     expect(action2()).toEqual({ type: 'test2', payload: 42 })
   })
@@ -52,7 +52,7 @@ describe('actions:', () => {
   })
 
   it('skip', () => {
-    const action = buildActionCreator('test', (v: number) => (v > 10 ? v / 10 : SKIP))
+    const action = createAction('test', (v: number) => (v > 10 ? v / 10 : SKIP))
     expect(action(5)).toEqual(SKIP)
     expect(action(15)).toEqual({ type: 'test', payload: 1.5 })
   })
@@ -86,11 +86,27 @@ describe('actions:', () => {
           await Promise.resolve(true)
           return 42
         },
+        asyncErr: async () => {
+          throw { error: true }
+        },
       })
       await store.dispatch(actions.asyncAction())
       await Promise.resolve(true)
       const log = store.getActions()
-      expect(log).toEqual([{ type: 'test/asyncAction', payload: 42 }])
+      expect(log).toEqual([
+        // { type: 'test/asyncAction:pending' },
+        // { type: 'test/asyncAction:fulfilled' },
+        { type: 'test/asyncAction', payload: 42 },
+      ])
+      // store.reset()
+      //
+      // await store.dispatch(actions.asyncErr())
+      // await Promise.resolve(true)
+      // log = store.getActions()
+      // expect(log).toEqual([
+      //   // { type: 'test/asyncErr:pending' },
+      //   // { type: 'test/asyncErr:rejected', payload: { error: true } },
+      // ])
     })
   })
 })
