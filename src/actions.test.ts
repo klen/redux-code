@@ -65,12 +65,15 @@ describe('actions', () => {
     })
     it('mixins2', () => {
       const actions = createActions('prefix:', { action1: 11 }, ['action2'])
-      expect(actions.action1()).toEqual({
+      const test1 = actions.action1()
+      expect(test1).toEqual({
         type: actions.action1.type,
         payload: 11,
       })
-      expect(actions.action2()).toEqual({
+      const test2 = actions.action2(42)
+      expect(test2).toEqual({
         type: actions.action2.type,
+        payload: 42,
       })
     })
   })

@@ -82,7 +82,7 @@ export function createActions(prefix, ...mixins) {
   const source = Object.assign(
     {},
     ...mixins.map((mix) =>
-      Array.isArray(mix) ? Object.fromEntries(mix.map((val) => [val, undefined])) : mix,
+      Array.isArray(mix) ? Object.fromEntries(mix.map((val) => [val, identity])) : mix,
     ),
   )
   const actions = {}

@@ -5,6 +5,7 @@ import { Action } from 'redux'
 import { ThunkAction } from 'redux-thunk'
 
 type StringKeys<Object> = Extract<keyof Object, string>
+type Identity<T> = (arg: T) => T
 
 export type ActionCreatorResult<TypeName extends string, Result> = Result extends Action
   ? Result
@@ -21,12 +22,12 @@ export interface ActionCreator<TypeName extends string, Result> {
 }
 
 export type MixType<T> = T extends string[]
-  ? { [K in T[number]]: undefined }
+  ? { [K in T[number]]: Identity<unknown> }
   : { [K in Extract<keyof T, string>]: T[K] }
 
 export type Actions<Prefix extends string, Source> = {
   readonly [K in StringKeys<Source>]: ActionCreator<
     `${Prefix}${K}`,
-    Source[K] extends (...args: any) => infer R ? R : Source[K]
+    Source[K] extends (...args: any[]) => infer R ? R : Source[K]
   >
 }

@@ -37,7 +37,7 @@ describe('readme', () => {
     const actions2 = createActions('prefix/', ['init', 'update'])
 
     expect(actions2.init()).toEqual({ type: 'prefix/init' })
-    expect(actions2.update()).toEqual({ type: 'prefix/update' })
+    expect(actions2.update(42)).toEqual({ type: 'prefix/update', payload: 42 })
   })
 
   it('createActions2', async () => {

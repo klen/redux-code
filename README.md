@@ -59,7 +59,7 @@ you may also pass an array of string to create simple actions
 const actions = createActions('prefix/', ['init', 'update'])
 
 expect(actions.init()).toEqual({type: 'prefix/init'})
-expect(actions.update()).toEqual({type: 'prefix/update'})
+expect(actions.update(42)).toEqual({type: 'prefix/update', payload: 42})
 
 ```
 
