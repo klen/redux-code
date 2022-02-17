@@ -2,7 +2,7 @@ import { createReducer, createActions } from '.'
 import { commonReducer, initReducer, commonActions } from './mixins'
 
 describe('mixins:', () => {
-  it('common', () => {
+  it('commonReducer,commonActions', () => {
     expect(commonActions).toBeTruthy()
     expect(commonReducer).toBeTruthy()
 
@@ -30,7 +30,7 @@ describe('mixins:', () => {
     expect(state).toEqual(defaultState)
   })
 
-  it('initial', () => {
+  it('initReducer', () => {
     expect(initReducer).toBeTruthy()
 
     const defaultState = { inited: false }
