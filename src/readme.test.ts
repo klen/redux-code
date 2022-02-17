@@ -9,21 +9,35 @@ describe('readme', () => {
   beforeEach(store.reset)
 
   it('createActions1', () => {
-    const actions = createActions('prefix:', {
-      increment: undefined,
-      decrement: true,
-      update: (num: number) => num,
-      random: () => (Math.random() < 0.5 ? actions.increment() : actions.decrement()),
+    const actions = createActions('prefix/', {
+      // Basic action creator without payload
+      action1: undefined,
+
+      // Basic action creator with static payload
+      action2: true,
+
+      // Basic action creator with dynamic payload
+      action3: (num) => num,
+
+      // You may return other actions as well
+      random: () => (Math.random() < 0.5 ? actions.action1() : actions.action2()),
     })
 
-    expect(actions.increment()).toEqual({ type: 'prefix:increment' })
-    expect(actions.decrement()).toEqual({ type: 'prefix:decrement', payload: true })
-    expect(actions.update(42)).toEqual({ type: 'prefix:update', payload: 42 })
-    expect([actions.increment(), actions.decrement()]).toContainEqual(actions.random())
+    // Call creators to build actions
+    expect(actions.action1()).toEqual({ type: 'prefix/action1' })
+    expect(actions.action2()).toEqual({ type: 'prefix/action2', payload: true })
+    expect(actions.action3(42)).toEqual({ type: 'prefix/action3', payload: 42 })
+    expect([actions.action1(), actions.action2()]).toContainEqual(actions.random())
 
-    expect(actions.increment.type).toBe('prefix:increment')
-    expect(actions.decrement.type).toBe('prefix:decrement')
-    expect(actions.update.type).toBe('prefix:update')
+    // Get action types
+    expect(actions.action1.type).toBe('prefix/action1')
+    expect(actions.action2.type).toBe('prefix/action2')
+    expect(actions.action3.type).toBe('prefix/action3')
+
+    const actions2 = createActions('prefix/', ['init', 'update'])
+
+    expect(actions2.init()).toEqual({ type: 'prefix/init' })
+    expect(actions2.update()).toEqual({ type: 'prefix/update' })
   })
 
   it('createActions2', async () => {

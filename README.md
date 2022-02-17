@@ -25,31 +25,31 @@ npm install --save redux-code
 ```javascript
 import {createActions} from 'redux-code'
 
-const actions = createActions('prefix:', {
+const actions = createActions('prefix/', {
 
     // Basic action creator without payload
-    increment: undefined,
+    action1: undefined,
 
-    // Basic action creator with payload
-    decrement: true,
+    // Basic action creator with static payload
+    action2: true,
 
-    // Basic action creator with custom payload
-    update: (num) => num,
+    // Basic action creator with dynamic payload
+    action3: (num) => num,
 
-    // You may call other actions as well
-    random: () => (Math.random() < 0.5 ? actions.increment() : actions.decrement()),
+    // You may return other actions as well
+    random: () => (Math.random() < 0.5 ? actions.action1() : actions.action2()),
 })
 
 // Call creators to build actions
-expect(actions.increment()).toEqual({ type: 'prefix:increment' })
-expect(actions.decrement()).toEqual({ type: 'prefix:decrement', payload: true })
-expect(actions.update(42)).toEqual({ type: 'prefix:update', payload: 42 })
-expect([actions.increment(), actions.decrement()]).toContainEqual(actions.random())
+expect(actions.action1()).toEqual({ type: 'prefix/action1' })
+expect(actions.action2()).toEqual({ type: 'prefix/action2', payload: true })
+expect(actions.action3(42)).toEqual({ type: 'prefix/action3', payload: 42 })
+expect([actions.action1(), actions.action2()]).toContainEqual(actions.random())
 
 // Get action types
-expect(actions.increment.type).toBe('prefix:increment')
-expect(actions.decrement.type).toBe('prefix:decrement')
-expect(actions.update.type).toBe('prefix:update')
+expect(actions.action1.type).toBe('prefix/action1')
+expect(actions.action2.type).toBe('prefix/action2')
+expect(actions.action3.type).toBe('prefix/action3')
 
 ```
 
@@ -73,11 +73,10 @@ const actions = createActions('thunk:', {
     // Just an update action
     update: (payload) => payload,
 
-    // Use redux-thunk
-    init: (dispatch, getState) => {
+    // Use redux-thunk (return function)
+    init: () => (dispatch, getState) => {
         const state = getState()
-        if (state.inited) return SKIP
-        return actions.update({inited: true})
+        if (!state.inited) dispatch(actions.update({ inited: true }))
     },
 
     // Promises also supported
