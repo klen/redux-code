@@ -4,24 +4,29 @@
 import { Action } from 'redux'
 import { ThunkAction } from 'redux-thunk'
 
-type ThunkActionAny = ThunkAction<any, any, any, any>
 type StringKeys<Object> = Extract<keyof Object, string>
 
-export type ActionCreatorReturn<Result, TypeName extends string> = Result extends Action | Function
+export type ActionCreatorReturn<TypeName extends string, Result> = Result extends Action
   ? Result
-  : Result extends Promise<any>
-  ? ThunkActionAny
+  : Result extends (dispatch, getState: () => any, extraArgument: infer Arg) => infer R
+  ? ThunkAction<R, any, Arg, any>
+  : Result extends Promise<infer R>
+  ? ThunkAction<R, any, never, never>
   : { type: TypeName; payload: Result }
 
-export interface ActionCreator<Result, TypeName extends string = string> {
+export interface ActionCreator<TypeName extends string, Result> {
   type: TypeName
   toString(): TypeName
-  (...args: any): ActionCreatorReturn<Result, TypeName>
+  (...args: any): ActionCreatorReturn<TypeName, Result>
 }
 
-export type Actions<Type, Prefix extends string = string> = {
-  [K in StringKeys<Type>]: ActionCreator<
-    Type[K] extends (...args: never[]) => any ? ReturnType<Type[K]> : Type[K],
-    `${Prefix}${K}`
+export type MixType<T> = T extends string[]
+  ? { [K in T[number]]: undefined }
+  : { [K in Extract<keyof T, string>]: T[K] }
+
+export type Actions<Prefix extends string, Source> = {
+  readonly [K in StringKeys<Source>]: ActionCreator<
+    `${Prefix}${K}`,
+    Source[K] extends (...args: any) => infer R ? R : Source[K]
   >
 }

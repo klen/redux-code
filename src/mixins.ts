@@ -18,7 +18,7 @@ export const commonActions = {
  * Supports UPDATE and RESET actions
  */
 export const commonReducer = (
-  actions: Actions<Record<string, any>>,
+  actions: Actions<string, Record<string, any>>,
   DEFAULT: any,
 ): ReducersMapObject<any, AnyAction> => ({
   [actions.reset?.type ?? 'reset']: () => DEFAULT,
@@ -29,6 +29,6 @@ export const commonReducer = (
  * Initial reducer.
  * Supports INIT action
  */
-export const initReducer = (actions: Actions<Record<string, any>>): ReducersMapObject => ({
+export const initReducer = (actions: Actions<string, Record<string, any>>): ReducersMapObject => ({
   [actions.init?.type ?? 'init']: (state) => ({ ...state, inited: true }),
 })

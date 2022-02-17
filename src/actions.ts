@@ -3,7 +3,7 @@
 
 import { Action, AnyAction } from 'redux'
 import { ThunkAction, ThunkDispatch } from 'redux-thunk'
-import { Actions } from './types'
+import { Actions, MixType } from './types'
 
 /**
  * SKIP actions
@@ -51,16 +51,27 @@ export function createAction(type: string, action: Function) {
   return creator
 }
 
+// taken from https://stackoverflow.com/questions/50374908/transform-union-type-to-intersection-type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
+  ? I
+  : never
+
 /**
  * A helper to create actions
  */
-export function createActions<Prefix extends string, M1>(prefix: Prefix, m1: M1): Actions<M1, Prefix>
-export function createActions<Prefix extends string, M1, M2>(prefix: Prefix, m1: M1, m2: M2): Actions<M1 & M2, Prefix> // prettier-ignore
-export function createActions<Prefix extends string, M1, M2, M3>(prefix: Prefix, m1: M1, m2: M2, m3: M3): Actions<M1 & M2 & M3, Prefix> // prettier-ignore
-export function createActions<Prefix extends string, M1, M2, M3, M4>(prefix: Prefix, m1: M1, m2: M2, m3: M3, m4: M4): Actions<M1 & M2 & M3 & M4, Prefix> // prettier-ignore
-export function createActions<Prefix extends string, M1, M2, M3, M4, M5>(prefix: Prefix, m1: M1, m2: M2, m3: M3, m4: M4, m5: M5): Actions<M1 & M2 & M3 & M4 & M5, Prefix> // prettier-ignore
-export function createActions(prefix: string, ...mixins: any[]) {
-  const source = Object.assign({}, ...mixins)
+export function createActions<
+  Prefix extends string,
+  Ms extends Array<S[] | Record<S, V>>,
+  S extends string,
+  V extends string | number | boolean | object,
+>(prefix: Prefix, ...mixins: Ms): Actions<Prefix, UnionToIntersection<MixType<Ms[number]>>> {
+  const source = Object.assign(
+    {},
+    ...mixins.map((mix) =>
+      Array.isArray(mix) ? Object.fromEntries(mix.map((val) => [val, undefined])) : mix,
+    ),
+  )
   const actions = {}
   // eslint-disable-next-line prefer-const
   for (let [name, payload] of Object.entries(source)) {
@@ -69,7 +80,7 @@ export function createActions(prefix: string, ...mixins: any[]) {
     actions[name] = createAction(actionType, action)
     actions[name].type = actionType
   }
-  return actions
+  return actions as Actions<Prefix, UnionToIntersection<MixType<Ms[number]>>>
 }
 
 // export function wrapAsync(action: ActionCreator<any>) {

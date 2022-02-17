@@ -53,6 +53,16 @@ expect(actions.update.type).toBe('prefix:update')
 
 ```
 
+you may also pass an array of string to create simple actions
+
+```javascript
+const actions = createActions('prefix/', ['init', 'update'])
+
+expect(actions.init()).toEqual({type: 'prefix/init'})
+expect(actions.update()).toEqual({type: 'prefix/update'})
+
+```
+
 #### Promises and thunks
 
 ```javascript
@@ -104,7 +114,7 @@ const usersActions = createActions('users/', UpdateMixin, DisableMixin, {
         // ...
     }
 })
-const commentsActions = createActions('comments/', UpdateMixin, DisableMixin, {
+const commentsActions = createActions('comments/', UpdateMixin, DisableMixin, ['another1', 'another2'], {
     save: async () => {
         // ...
     }
