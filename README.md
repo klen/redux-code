@@ -11,6 +11,7 @@ Features:
 * [createReducer](#createreducer) -- A utility to create reducers (with immer support)
 * [createActions](#createactions) -- A utility to create actions (with thunk, promises support)
 * [skipMiddleware](#skipmiddleware) -- A Redux middleware to add ability to skip actions
+* [persistReducer, persistStore](#persistReducer) -- Make state persistent
 
 ## Installation
 
@@ -265,6 +266,33 @@ const actions = createActions('example/', commonActions, {
 const reducer = createReducer(initial, commonReducer(actions, initial), {
     // .. your other actions handlers here
 })
+
+// commonActions, commonReducer supports such actions as:
+// * reset -- to reset your reducer state
+// actions.reset()
+
+// * update -- to update your reducer state from the provided payload
+// actions.update({'updates': 'here'})
+```
+
+### persistReducer
+
+```javascript
+import {commonActions, commonReducer, persistReducer, persistStore} from 'redux-code'
+import {localStorage} from 'redux-core/persist'
+
+const actions = createActions('example/', commonActions, {
+    // .. your other action creators here
+})
+const reducer = persistReducer(
+    {key: 'storeKey', storage: localStorage},
+    createReducer(initial, commonReducer(actions, initial), {
+        // .. your other actions handlers here
+    }) 
+)
+
+const store = createStore(reducer, {})
+const persistor = persistStore(store)
 
 // commonActions, commonReducer supports such actions as:
 // * reset -- to reset your reducer state
