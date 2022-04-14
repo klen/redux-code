@@ -5,7 +5,7 @@ let DISPATCHING = false
 
 export const queue: AnyAction[] = []
 
-export function push(action: AnyAction) {
+export function push(action) {
   if (DISPATCHING || !DISPATCH) return queue.push(action)
   return DISPATCH(action)
 }
