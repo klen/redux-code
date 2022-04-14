@@ -20,6 +20,8 @@ describe('persist', () => {
   const reducer = createReducer(initial, commonReducer(actions, initial))
   const persist = persistReducer({ key: 'test', storage: memoryStorage }, reducer)
 
+  beforeEach(async () => await memoryStorage.setItem('test', undefined))
+
   it('persistReducer', async () => {
     const state = persist(undefined, { type: REHYDRATE, persist: 'test', payload: { value: 7 } })
     expect(state).toEqual({ value: 7 })
@@ -32,33 +34,65 @@ describe('persist', () => {
     expect(stored).toBe(JSON.stringify(state2))
   })
 
-  it('persistStore', async () => {
-    await memoryStorage.setItem('test', JSON.stringify({ value: 'initial' }))
+  describe('persistStore', () => {
+    it('rehydrate unknown', async () => {
+      const store = createStore(persist)
+      persistStore(store)
 
-    const store = createStore(persist, {})
-    const persistor = persistStore(store)
-    await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const state = store.getState()
+      expect(state).toEqual(initial)
+    })
 
-    const state = store.getState()
-    expect(state).toEqual({ value: 'initial' })
+    it('rehydrate stored', async () => {
+      await memoryStorage.setItem('test', JSON.stringify({ value: 'initial' }))
+      const store = createStore(persist, {})
+      persistStore(store)
 
-    store.dispatch(actions.update({ value: 42 }))
-    const state2 = store.getState()
-    expect(state2).toEqual({ value: 42 })
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const state = store.getState()
+      expect(state).toEqual({ value: 'initial' })
+    })
 
-    await new Promise((resolve) => setTimeout(resolve, 0))
-    const stored = await memoryStorage.getItem('test')
-    expect(stored).toBe(JSON.stringify(state2))
+    it('persist', async () => {
+      const store = createStore(persist, {})
+      persistStore(store)
 
-    persistor.purge('test')
-    await new Promise((resolve) => setTimeout(resolve, 0))
-    const stored2 = await memoryStorage.getItem('test')
-    expect(stored2).toBeUndefined()
+      store.dispatch(actions.update({ value: 42 }))
+      const state = store.getState()
+      expect(state).toEqual({ value: 42 })
 
-    persistor.pause('test')
-    store.dispatch(actions.update({ value: 42 }))
-    await new Promise((resolve) => setTimeout(resolve, 0))
-    const stored3 = await memoryStorage.getItem('test')
-    expect(stored3).toBeUndefined()
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const stored = await memoryStorage.getItem('test')
+      expect(stored).toBe(JSON.stringify(state))
+    })
+
+    it('purge', async () => {
+      const store = createStore(persist, {})
+      const persistor = persistStore(store)
+
+      store.dispatch(actions.update({ value: 42 }))
+
+      persistor.purge('test')
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const stored = await memoryStorage.getItem('test')
+      expect(stored).toBeUndefined()
+    })
+
+    it('pause', async () => {
+      await memoryStorage.setItem('test', JSON.stringify({ value: 'initial' }))
+
+      const store = createStore(persist, {})
+      const persistor = persistStore(store)
+
+      store.dispatch(actions.update({ value: 42 }))
+
+      persistor.pause('test')
+      store.dispatch(actions.update({ value: 77 }))
+
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const stored = await memoryStorage.getItem('test')
+      expect(stored).toEqual(JSON.stringify({ value: 42 }))
+    })
   })
 })
