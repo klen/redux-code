@@ -159,6 +159,23 @@ Internally `createReducer` uses [Immer](https://github.com/mweststrate/immer)
 library, which lets you write code that "mutates" some data, but actually
 applies the updates immutably.
 
+##### Create reducer without immer
+
+The library provides method `createBaseReducer` which one doesn't use `immer`
+internally.
+```javascript
+import { createBaseReducer } from 'redux-code'
+
+const initial = 42
+
+const reducer = createBaseReducer(initial, {
+    // Map actions types to handlers
+    increment: (state, action) => state + 1,
+    decrement: (state, action) => state - 1,
+})
+
+```
+
 #### Using with `createActions`
 
 Sure you may use `createActions` with the `createReducer` together

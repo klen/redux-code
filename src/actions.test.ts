@@ -106,7 +106,19 @@ describe('actions', () => {
 
     beforeEach(store.reset)
 
-    it('thunk', () => {
+    it('thunk1', () => {
+      const actions = createActions('test/', {
+        thunk: () => (dispatch: typeof store.dispatch) => {
+          dispatch({ type: 'test' })
+          return true
+        },
+      })
+      store.dispatch(actions.thunk())
+      const log = store.getActions()
+      expect(log).toEqual([{ type: 'test' }, { type: actions.thunk.type, payload: true }])
+    })
+
+    it('thunk2', () => {
       const actions = createActions('test/', {
         action: true,
         thunk: (cond: boolean) => (dispatch: typeof store.dispatch) => {
