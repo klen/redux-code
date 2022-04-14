@@ -44,6 +44,16 @@ describe('persist', () => {
       expect(state).toEqual(initial)
     })
 
+    it('rehydrate null', async () => {
+      await memoryStorage.setItem('test', null)
+      const store = createStore(persist)
+      persistStore(store)
+
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const state = store.getState()
+      expect(state).toEqual(initial)
+    })
+
     it('rehydrate stored', async () => {
       await memoryStorage.setItem('test', JSON.stringify({ value: 'initial' }))
       const store = createStore(persist, {})

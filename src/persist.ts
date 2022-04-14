@@ -81,12 +81,12 @@ export const persistStore = (store: Store) => {
     const { storage, parse, key } = cfg
     const parse_ = parse || JSON.parse
     storage.getItem(key).then((stored) => {
-      if (stored !== undefined)
-        store.dispatch({
-          type: REHYDRATE,
-          payload: parse_(stored),
-          persist: key,
-        })
+      if (!stored) return
+      store.dispatch({
+        type: REHYDRATE,
+        payload: parse_(stored),
+        persist: key,
+      })
     })
   }
   return {
