@@ -49,7 +49,7 @@ export const persistReducer = (config: PersistConfig, reducer: Reducer) => {
     if (action.persist !== undefined && action.persist === key) {
       switch (action.type) {
         case REHYDRATE:
-          state = merge_(action.payload, state)
+          if (action.payload !== undefined) state = merge_(action.payload, state)
           isPaused = false
           break
 
@@ -81,10 +81,9 @@ export const persistStore = (store: Store) => {
     const { storage, parse, key } = cfg
     const parse_ = parse || JSON.parse
     storage.getItem(key).then((stored) => {
-      if (!stored) return
       store.dispatch({
         type: REHYDRATE,
-        payload: parse_(stored),
+        payload: stored ? parse_(stored) : undefined,
         persist: key,
       })
     })

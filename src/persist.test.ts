@@ -42,6 +42,11 @@ describe('persist', () => {
       await new Promise((resolve) => setTimeout(resolve, 0))
       const state = store.getState()
       expect(state).toEqual(initial)
+
+      store.dispatch(actions.update({ value: 42 }))
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const stored = await memoryStorage.getItem('test')
+      expect(stored).toBe(JSON.stringify({ value: 42 }))
     })
 
     it('rehydrate null', async () => {
@@ -52,6 +57,11 @@ describe('persist', () => {
       await new Promise((resolve) => setTimeout(resolve, 0))
       const state = store.getState()
       expect(state).toEqual(initial)
+
+      store.dispatch(actions.update({ value: 42 }))
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const stored = await memoryStorage.getItem('test')
+      expect(stored).toBe(JSON.stringify({ value: 42 }))
     })
 
     it('rehydrate stored', async () => {
