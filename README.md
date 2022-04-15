@@ -294,12 +294,17 @@ const reducer = persistReducer(
 const store = createStore(reducer, {})
 const persistor = persistStore(store)
 
-// commonActions, commonReducer supports such actions as:
-// * reset -- to reset your reducer state
-// actions.reset()
+// State will be persisted in localStorage
+store.dispatch(actions.update({value: 42}))
 
-// * update -- to update your reducer state from the provided payload
-// actions.update({'updates': 'here'})
+// Pause persistence for the storeKey
+persistor.pause()
+
+// Resume persistence for the storeKey
+persistor.persist()
+
+// Purge data
+persistor.purge()
 ```
 
 ## License
