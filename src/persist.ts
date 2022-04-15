@@ -114,12 +114,14 @@ const dispatchByKey = (dispatch, type, key: string | undefined) => {
   }
 }
 
-function createAsyncStorage(storage) {
+function createAsyncStorage(storage: Storage) {
   return {
     setItem: (key, value) =>
       new Promise((resolve) => {
         resolve(storage.setItem(key, value))
       }),
     getItem: (key) => new Promise((resolve) => resolve(storage.getItem(key))),
+    removeItem: (key) => new Promise((resolve) => resolve(storage.removeItem(key))),
+    clear: () => new Promise((resolve) => resolve(storage.clear())),
   }
 }
