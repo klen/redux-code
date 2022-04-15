@@ -62,20 +62,20 @@ export const persistReducer = (config: PersistConfig, reducer: Reducer) => {
   return (state, action) => {
     if (action.persist !== undefined && action.persist === key) {
       switch (action.type) {
-        case REHYDRATE:
+        case `${REHYDRATE}/${key}`:
           if (action.payload !== undefined) state = merge_(action.payload, state)
           isPaused = false
           break
 
-        case PURGE:
+        case `${PURGE}/${key}`:
           persist(undefined)
           return state
 
-        case PAUSE:
+        case `${PAUSE}/${key}`:
           isPaused = true
           break
 
-        case PERSIST:
+        case `${PERSIST}/${key}`:
           isPaused = false
           break
 
@@ -95,7 +95,7 @@ export const persistStore = (store: Store) => {
     const { storage, deserialize, key } = cfg
     storage.getItem(key).then((stored) => {
       store.dispatch({
-        type: REHYDRATE,
+        type: `${REHYDRATE}/${key}`,
         payload: stored ? (deserialize || JSON.parse)(stored) : undefined,
         persist: key,
       })
@@ -110,7 +110,8 @@ export const persistStore = (store: Store) => {
 
 const dispatchByKey = (dispatch, type, key: string | undefined) => {
   for (const cfg of PERSISTORS) {
-    if (key === undefined || cfg.key === key) dispatch({ type, persist: key })
+    if (key === undefined || cfg.key === key)
+      dispatch({ type: `${type}/${cfg.key}`, persist: cfg.key })
   }
 }
 

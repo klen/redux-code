@@ -23,7 +23,11 @@ describe('persist', () => {
   beforeEach(async () => await memoryStorage.setItem('test', undefined))
 
   it('persistReducer', async () => {
-    const state = persist(undefined, { type: REHYDRATE, persist: 'test', payload: { value: 7 } })
+    const state = persist(undefined, {
+      type: `${REHYDRATE}/test`,
+      persist: 'test',
+      payload: { value: 7 },
+    })
     expect(state).toEqual({ value: 7 })
 
     const state2 = persist(undefined, actions.update({ value: 42 }))
