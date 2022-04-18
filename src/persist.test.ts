@@ -39,6 +39,21 @@ describe('persist', () => {
   })
 
   describe('persistStore', () => {
+    it('delayed setup', async () => {
+      const persist = persistReducer({ key: 'delayed' }, reducer)
+      const store = createStore(persist)
+      persistStore(store, memoryStorage)
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      store.dispatch(actions.update({ value: 42 }))
+      const state = store.getState()
+      expect(state).toEqual({ value: 42 })
+
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      const stored = await memoryStorage.getItem('delayed')
+      expect(stored).toBe(JSON.stringify(state))
+    })
+
     it('rehydrate unknown', async () => {
       const store = createStore(persist)
       persistStore(store)
