@@ -2,11 +2,12 @@
 
 import { AnyAction, Reducer, Store } from 'redux'
 
-export const REHYDRATE = 'persist/rehydrate'
-export const PURGE = 'persist/purge'
-export const PAUSE = 'persist/pause'
-export const PERSIST = 'persist/persist'
-export type PersistTypes = typeof REHYDRATE | typeof PURGE | typeof PAUSE | typeof PERSIST
+export const persistTypes = {
+  REHYDRATE: 'persist/rehydrate',
+  PURGE: 'persist/purge',
+  PAUSE: 'persist/pause',
+  PERSIST: 'persist/persist',
+} as const
 
 export const localStorage = createAsyncStorage(globalThis.localStorage)
 export const sessionStorage = createAsyncStorage(globalThis.sessionStorage)
@@ -68,20 +69,20 @@ export function persistReducer(config: PersistConfig, reducer: Reducer) {
   return (state, action) => {
     if (action.persist !== undefined && action.persist === key) {
       switch (action.type) {
-        case `${REHYDRATE}/${key}`:
+        case `${persistTypes.REHYDRATE}/${key}`:
           if (action.payload !== undefined) state = merge(action.payload, state)
           isPaused = false
           break
 
-        case `${PURGE}/${key}`:
+        case `${persistTypes.PURGE}/${key}`:
           persist(undefined)
           return state
 
-        case `${PAUSE}/${key}`:
+        case `${persistTypes.PAUSE}/${key}`:
           isPaused = true
           break
 
-        case `${PERSIST}/${key}`:
+        case `${persistTypes.PERSIST}/${key}`:
           isPaused = false
           break
 
@@ -105,20 +106,24 @@ export function persistStore(store: Store, storage?: PersistStorage) {
       throw `Persistent reducer (${key}) doesn't have a storage and no default storage is provided`
     cfg.storage.getItem(key).then((stored) => {
       store.dispatch({
-        type: `${REHYDRATE}/${key}`,
+        type: `${persistTypes.REHYDRATE}/${key}`,
         payload: stored ? (deserialize || JSON.parse)(stored) : undefined,
         persist: key,
       })
     })
   }
   return {
-    purge: (key?: string) => dispatchByKey(store.dispatch, { type: PURGE }, key),
-    pause: (key?: string) => dispatchByKey(store.dispatch, { type: PAUSE }, key),
-    persist: (key?: string) => dispatchByKey(store.dispatch, { type: PERSIST }, key),
+    purge: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PURGE }, key),
+    pause: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PAUSE }, key),
+    persist: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PERSIST }, key),
   }
 }
 
-const dispatchByKey = (dispatch, action: { type: PersistTypes; payload?: any }, key?: string) => {
+const dispatchByKey = (
+  dispatch,
+  action: { type: typeof persistTypes[keyof typeof persistTypes]; payload?: any },
+  key?: string,
+) => {
   for (const cfg of PERSISTORS) {
     if (key === undefined || cfg.key === key)
       dispatch({ ...action, type: `${action.type}/${cfg.key}`, persist: cfg.key })

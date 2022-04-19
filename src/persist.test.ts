@@ -1,6 +1,6 @@
 import { createStore } from 'redux'
 import { createActions, createReducer, commonReducer } from '.'
-import { persistReducer, REHYDRATE, persistStore } from './persist'
+import { persistReducer, persistTypes, persistStore } from './persist'
 
 export const memoryStorage = (function () {
   const storage = {}
@@ -24,7 +24,7 @@ describe('persist', () => {
 
   it('persistReducer', async () => {
     const state = persist(undefined, {
-      type: `${REHYDRATE}/test`,
+      type: `${persistTypes.REHYDRATE}/test`,
       persist: 'test',
       payload: { value: 7 },
     })
