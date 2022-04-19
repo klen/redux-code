@@ -3,10 +3,20 @@
 import { AnyAction, Reducer, Store } from 'redux'
 
 export const persistTypes = {
+  /** Rehydrate an reducer */
   REHYDRATE: 'persist/rehydrate',
+
+  /** All reducers were completely rehydrated */
+  COMPLETE: 'persist/complete',
+
+  /** Purge an reducer state */
   PURGE: 'persist/purge',
+
+  /** Pause an reducer persistence */
   PAUSE: 'persist/pause',
-  PERSIST: 'persist/persist',
+
+  /** Resume an reducer persistence */
+  RESUME: 'persist/resume',
 } as const
 
 export const localStorage = createAsyncStorage(globalThis.localStorage)
@@ -82,7 +92,7 @@ export function persistReducer(config: PersistConfig, reducer: Reducer) {
           isPaused = true
           break
 
-        case `${persistTypes.PERSIST}/${key}`:
+        case `${persistTypes.RESUME}/${key}`:
           isPaused = false
           break
 
@@ -99,23 +109,28 @@ export function persistReducer(config: PersistConfig, reducer: Reducer) {
 /** @param storage a default storage */
 export function persistStore(store: Store, storage?: PersistStorage) {
   // Rehydrate
+  const promises = []
   for (const cfg of PERSISTORS) {
     const { deserialize, key } = cfg
     cfg.storage = cfg.storage === undefined ? storage : cfg.storage
     if (!cfg.storage)
       throw `Persistent reducer (${key}) doesn't have a storage and no default storage is provided`
-    cfg.storage.getItem(key).then((stored) => {
+    const promise = cfg.storage.getItem(key).then((stored) => {
       store.dispatch({
         type: `${persistTypes.REHYDRATE}/${key}`,
         payload: stored ? (deserialize || JSON.parse)(stored) : undefined,
         persist: key,
       })
     })
+    promises.push(promise)
   }
+  Promise.all(promises).then(() => {
+    store.dispatch({ type: persistTypes.COMPLETE })
+  })
   return {
     purge: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PURGE }, key),
     pause: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PAUSE }, key),
-    persist: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PERSIST }, key),
+    persist: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.RESUME }, key),
   }
 }
 
