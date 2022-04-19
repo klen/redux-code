@@ -100,7 +100,7 @@ export function persistStore(store: Store, storage?: PersistStorage) {
   // Rehydrate
   for (const cfg of PERSISTORS) {
     const { deserialize, key } = cfg
-    cfg.storage = cfg.storage ?? storage
+    cfg.storage = cfg.storage === undefined ? storage : cfg.storage
     if (!cfg.storage)
       throw `Persistent reducer (${key}) doesn't have a storage and no default storage is provided`
     cfg.storage.getItem(key).then((stored) => {
