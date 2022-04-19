@@ -108,29 +108,29 @@ export function persistReducer(config: PersistConfig, reducer: Reducer) {
 
 /** @param storage a default storage */
 export function persistStore(store: Store, storage?: PersistStorage) {
-  // Rehydrate
-  const promises = []
-  for (const cfg of PERSISTORS) {
-    const { deserialize, key } = cfg
-    cfg.storage = cfg.storage === undefined ? storage : cfg.storage
-    if (!cfg.storage)
-      throw `Persistent reducer (${key}) doesn't have a storage and no default storage is provided`
-    const promise = cfg.storage.getItem(key).then((stored) => {
-      store.dispatch({
-        type: `${persistTypes.REHYDRATE}/${key}`,
-        payload: stored ? (deserialize || JSON.parse)(stored) : undefined,
-        persist: key,
-      })
-    })
-    promises.push(promise)
+  function rehydrate() {
+    return Promise.all(
+      PERSISTORS.map((cfg) => {
+        const { deserialize, key } = cfg
+        cfg.storage = cfg.storage === undefined ? storage : cfg.storage
+        if (!cfg.storage)
+          throw `Persistent reducer (${key}) doesn't have a storage and no default storage is provided`
+        return cfg.storage.getItem(key).then((stored) => {
+          store.dispatch({
+            type: `${persistTypes.REHYDRATE}/${key}`,
+            payload: stored ? (deserialize || JSON.parse)(stored) : undefined,
+            persist: key,
+          })
+        })
+      }),
+    ).then(() => store.dispatch({ type: persistTypes.COMPLETE }))
   }
-  Promise.all(promises).then(() => {
-    store.dispatch({ type: persistTypes.COMPLETE })
-  })
+  rehydrate()
   return {
+    rehydrate,
     purge: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PURGE }, key),
     pause: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PAUSE }, key),
-    persist: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.RESUME }, key),
+    resume: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.RESUME }, key),
   }
 }
 
