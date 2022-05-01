@@ -2,7 +2,7 @@
 // @ts-nocheck
 
 import produce, { Draft, isDraft, isDraftable } from 'immer'
-import { Action, Reducer } from 'redux'
+import { Action, combineReducers, Reducer } from 'redux'
 
 /**
  * A helper to create reducers (uses immer)
@@ -25,4 +25,17 @@ export const createBaseReducer = function <S>(DEFAULT: S, ...mixins: object[]): 
     if (producer) state = producer(state, action)
     return state
   }
+}
+
+const isPlainObject = (v) =>
+  !!v && typeof v === 'object' && (v.__proto__ === null || v.__proto__ === Object.prototype)
+
+export const buildStructuredReducer = function (reducer) {
+  if (isPlainObject(reducer)) {
+    const combined = Object.fromEntries(
+      Object.entries(reducer).map(([key, value]) => [key, buildStructuredReducer(value)]),
+    )
+    return combineReducers(combined)
+  }
+  return reducer
 }
