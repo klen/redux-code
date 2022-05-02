@@ -19,9 +19,6 @@ export const persistTypes = {
   RESUME: 'persist/resume',
 } as const
 
-export const localStorage = createAsyncStorage(globalThis.localStorage)
-export const sessionStorage = createAsyncStorage(globalThis.sessionStorage)
-
 type PersistStorage = {
   setItem: (key: string, value) => Promise<any>
   getItem: (key: string) => Promise<any>
@@ -156,3 +153,17 @@ function createAsyncStorage(storage: Storage) {
     clear: () => new Promise((resolve) => resolve(storage.clear())),
   }
 }
+
+export const localStorage = createAsyncStorage(globalThis.localStorage)
+export const sessionStorage = createAsyncStorage(globalThis.sessionStorage)
+export const memoryStorage = (function () {
+  const storage = {}
+  return {
+    setItem: async function (key, value) {
+      storage[key] = value
+    },
+    getItem: async function (key) {
+      return storage[key]
+    },
+  }
+})()

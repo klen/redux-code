@@ -1,18 +1,6 @@
 import { createStore } from 'redux'
 import { createActions, createReducer, commonReducer } from '.'
-import { persistReducer, persistTypes, persistStore } from './persist'
-
-export const memoryStorage = (function () {
-  const storage = {}
-  return {
-    setItem: async function (key, value) {
-      storage[key] = value
-    },
-    getItem: async function (key) {
-      return storage[key]
-    },
-  }
-})()
+import { persistReducer, persistTypes, persistStore, memoryStorage } from './persist'
 
 describe('persist', () => {
   const initial = { value: null }
