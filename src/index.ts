@@ -1,9 +1,10 @@
 export * from './actions'
-export * from './middleware'
+export * from './skip'
 export * from './mixins'
 export * from './reducer'
 export * from './types'
 export * from './persist'
+export * from './entities'
 export {
   queue,
   middleware as queueMiddleware,

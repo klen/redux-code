@@ -1,5 +1,10 @@
-import { Middleware } from 'redux'
-import { SKIP } from './actions'
+import { Middleware, AnyAction } from 'redux'
+
+/**
+ * A special object to make an ability to skip actions.
+ * This is only used with skipMiddleware
+ */
+export const SKIP: AnyAction = { type: null }
 
 export const skipMiddleware: Middleware = function () {
   return function (next) {

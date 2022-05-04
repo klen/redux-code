@@ -275,6 +275,33 @@ const reducer = createReducer(initial, commonReducer(actions, initial), {
 // actions.update({'updates': 'here'})
 ```
 
+#### Entities
+```javascript
+import {entitiesActions, entitiesReducer} from 'redux-code'
+
+const actions = createActions('base/', entitiesActions, {
+    // .. your other action creators here
+})
+const reducer = createReducer(initial, entitiesReducer(actions), {
+    // .. your other actions handlers here
+})
+
+// entitiesActions supports such actions as:
+// * addOne -- to add an entity
+// * addMany -- to add many entities
+// * updateOne -- to update an entity
+// * updateMany -- to update many entities
+// * upsertOne -- to add/update an entity
+// * upsertMany -- to add/update many entities
+// * setOne -- to add/set an entity
+// * setMany -- to add/set many entities
+// * setAll -- to replace all entities
+// * removeOne -- to remove an entity
+// * removeMany -- to remove many entities
+// * removeAll -- to remove all entities
+
+```
+
 ### persistReducer
 
 ```javascript

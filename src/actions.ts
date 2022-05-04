@@ -1,15 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Action, AnyAction } from 'redux'
+import { Action } from 'redux'
 import { ThunkAction, ThunkDispatch } from 'redux-thunk'
 import { Actions, MixType, ActionCreatorResult } from './types'
-
-/**
- * A special object to make an ability to skip actions.
- * This is only used with skipMiddleware
- */
-export const SKIP: AnyAction = { type: null }
 
 /**
  * Process a result from an action creator
