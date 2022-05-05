@@ -30,8 +30,7 @@ describe('persist', () => {
     it('delayed setup', async () => {
       const persist = persistReducer({ key: 'delayed' }, reducer)
       const store = createStore(persist)
-      persistStore(store, memoryStorage)
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await persistStore(store, memoryStorage)
 
       store.dispatch(actions.update({ value: 42 }))
       const state = store.getState()
@@ -44,9 +43,8 @@ describe('persist', () => {
 
     it('rehydrate unknown', async () => {
       const store = createStore(persist)
-      persistStore(store)
+      await persistStore(store)
 
-      await new Promise((resolve) => setTimeout(resolve, 0))
       const state = store.getState()
       expect(state).toEqual(initial)
 
@@ -59,9 +57,8 @@ describe('persist', () => {
     it('rehydrate null', async () => {
       await memoryStorage.setItem('test', null)
       const store = createStore(persist)
-      persistStore(store)
+      await persistStore(store)
 
-      await new Promise((resolve) => setTimeout(resolve, 0))
       const state = store.getState()
       expect(state).toEqual(initial)
 
@@ -74,9 +71,8 @@ describe('persist', () => {
     it('rehydrate stored', async () => {
       await memoryStorage.setItem('test', JSON.stringify({ value: 'initial' }))
       const store = createStore(persist, {})
-      persistStore(store)
+      await persistStore(store)
 
-      await new Promise((resolve) => setTimeout(resolve, 0))
       const state = store.getState()
       expect(state).toEqual({ value: 'initial' })
     })
@@ -85,8 +81,8 @@ describe('persist', () => {
       await memoryStorage.setItem('test', JSON.stringify({ value: 'initial' }))
       const store = createStore(persist, {})
       const persistor = persistStore(store)
+      await persistor
 
-      await new Promise((resolve) => setTimeout(resolve, 0))
       const state = store.getState()
       expect(state).toEqual({ value: 'initial' })
 

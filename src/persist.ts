@@ -122,9 +122,10 @@ export function persistStore(store: Store, storage?: PersistStorage) {
       }),
     ).then(() => store.dispatch({ type: persistTypes.COMPLETE }))
   }
-  rehydrate()
+  const promise = rehydrate()
   return {
     rehydrate,
+    then: promise.then.bind(promise),
     purge: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PURGE }, key),
     pause: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.PAUSE }, key),
     resume: (key?: string) => dispatchByKey(store.dispatch, { type: persistTypes.RESUME }, key),
