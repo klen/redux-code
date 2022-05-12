@@ -2,9 +2,9 @@
 
 import { Actions } from './types'
 
-interface EntitiesState {
+interface EntitiesState<Entity = any> {
   ids: string[]
-  entities: Record<string, any>
+  entities: Record<string, Entity>
 }
 
 export const entitiesActions = {
@@ -104,7 +104,8 @@ export const entitiesReducer = (
   }
 }
 
-export const selectEntities = (state: EntitiesState) => state.ids.map((id) => state.entities[id])
+export const selectEntities = <Entity>(state: EntitiesState<Entity>) =>
+  state.ids.map((id) => state.entities[id])
 export const selectEntitiesTotal = (state: EntitiesState) => state.ids.length
 
 const merge = (id, entity, entities) => ({ ...entities, [id]: { ...entities[id], ...entity } })
