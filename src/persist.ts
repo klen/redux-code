@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { AnyAction, Reducer, Store } from 'redux'
+import { Action, AnyAction, Reducer, Store } from 'redux'
 
 export const persistTypes = {
   /** Rehydrate an reducer */
@@ -49,7 +49,10 @@ export type PersistConfig = {
 
 const PERSISTORS: PersistConfig[] = []
 
-export function persistReducer(config: PersistConfig, reducer: Reducer) {
+export function persistReducer<S = any, A extends Action = AnyAction>(
+  config: PersistConfig,
+  reducer: Reducer<S, A>,
+) {
   const { key } = config
   const serialize = config.serialize || JSON.stringify
   const merge = config.merge || ((stored) => stored)
