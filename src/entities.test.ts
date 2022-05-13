@@ -4,7 +4,12 @@ import { entitiesActions, entitiesReducer, selectEntities, selectEntitiesTotal }
 describe('entities', () => {
   const actions = createActions('base', entitiesActions)
   const initial = { ids: [], entities: {} }
-  const reducer = createReducer(initial, entitiesReducer(actions))
+  const reducer = createReducer(
+    initial,
+    entitiesReducer(actions, {
+      sortComparer: (a, b) => a.order - b.order,
+    }),
+  )
 
   it('entitiesActions', () => {
     expect(actions).toBeTruthy()
@@ -33,21 +38,11 @@ describe('entities', () => {
   })
 
   it('addMany', () => {
-    const item1 = { id: '1', body: 'b1' }
-    const item2 = { id: '2', body: 'b2' }
+    const item1 = { id: '1', body: 'b1', order: 2 }
+    const item2 = { id: '2', body: 'b2', order: 1 }
     const state = reducer(initial, actions.addMany([item1, item2]))
     expect(state).toEqual({
-      ids: [item1.id, item2.id],
-      entities: { [item1.id]: item1, [item2.id]: item2 },
-    })
-  })
-
-  it('addMany', () => {
-    const item1 = { id: '1', body: 'b1' }
-    const item2 = { id: '2', body: 'b2' }
-    const state = reducer(initial, actions.addMany([item1, item2]))
-    expect(state).toEqual({
-      ids: [item1.id, item2.id],
+      ids: [item2.id, item1.id],
       entities: { [item1.id]: item1, [item2.id]: item2 },
     })
   })
@@ -55,29 +50,32 @@ describe('entities', () => {
   it('updateOne', () => {
     const item = { id: '1', body: 'b1' }
     const state = reducer(initial, actions.addOne(item))
-    const state2 = reducer(state, actions.updateOne({ id: item.id, body: 'updated' }))
-    expect(state2).toEqual({
+    const state2 = reducer(state, actions.updateOne({ id: 'unknown', body: 'updated' }))
+    expect(state2.entities).toBe(state.entities)
+
+    const state3 = reducer(state, actions.updateOne({ id: item.id, body: 'updated' }))
+    expect(state3).toEqual({
       ids: state.ids,
       entities: { [item.id]: { ...item, body: 'updated' } },
     })
   })
 
   it('updateMany', () => {
-    const item1 = { id: '1', body: 'b1' }
-    const item2 = { id: '2', body: 'b2' }
+    const item1 = { id: '1', body: 'b1', order: 1 }
+    const item2 = { id: '2', body: 'b2', order: 2 }
     const state = reducer(initial, actions.addMany([item1, item2]))
     const state2 = reducer(
       state,
       actions.updateMany([
-        { id: item1.id, body: 'updated' },
-        { id: item2.id, body: 'updated' },
+        { id: item1.id, body: 'updated', order: 2 },
+        { id: item2.id, body: 'updated', order: 1 },
       ]),
     )
     expect(state2).toEqual({
-      ids: state.ids,
+      ids: [item2.id, item1.id],
       entities: {
-        [item1.id]: { ...item1, body: 'updated' },
-        [item2.id]: { ...item2, body: 'updated' },
+        [item1.id]: { ...item1, body: 'updated', order: 2 },
+        [item2.id]: { ...item2, body: 'updated', order: 1 },
       },
     })
   })

@@ -58,7 +58,12 @@ export const entitiesReducer = (
       if (!(id in entities)) continue
       entities = { ...entities, [id]: { ...entities[id], ...processEntity(entity) } }
     }
-    return state.entities === entities ? state : { ...state, entities }
+    if (state.entities === entities) return state
+    return {
+      ...state,
+      entities,
+      ids: sorter(state.ids, entities),
+    }
   }
 
   function setMany(items, state: EntitiesState, strategy = replace) {
@@ -106,6 +111,7 @@ export const entitiesReducer = (
 
 export const selectEntities = <Entity>(state: EntitiesState<Entity>) =>
   state.ids.map((id) => state.entities[id])
+export const selectEntityById = <Entity>(state: EntitiesState<Entity>, id) => state.entities[id]
 export const selectEntitiesTotal = (state: EntitiesState) => state.ids.length
 
 const merge = (id, entity, entities) => ({ ...entities, [id]: { ...entities[id], ...entity } })
