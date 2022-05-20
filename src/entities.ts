@@ -116,8 +116,13 @@ export const entitiesReducer = (
     [actions.upsertMany.type]: (state, { payload }) => setMany(payload, state, merge),
     [actions.setOne.type]: (state, { payload }) => setMany([payload], state),
     [actions.setMany.type]: (state, { payload }) => setMany(payload, state),
-    [actions.setAll.type]: (state, { payload }) =>
-      addMany(payload, { ...state, ids: [], entities: {} }),
+    [actions.setAll.type]: (state, { payload }) => {
+      const items = payload.map((item) => {
+        const id = selectId(item)
+        return updateComparer(item, state.entities[id]) ? state.entities[id] : item
+      })
+      return addMany(items, { ...state, ids: [], entities: {} })
+    },
   }
 }
 

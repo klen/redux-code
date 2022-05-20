@@ -256,5 +256,19 @@ describe('entities', () => {
       const state2 = reducer(state, actions.upsertOne({ ...item }))
       expect(state2.entities[item.id]).toBe(item)
     })
+
+    it('setAll', () => {
+      const item1 = { id: '1', body: 'b1', order: 1 }
+      const item2 = { id: '2', body: 'b2', order: 2 }
+      const state = reducer(initial, actions.addMany([item1, item2]))
+      const state2 = reducer(state, actions.setAll([{ ...item1 }]))
+      expect(state2.entities[item1.id]).toBe(item1)
+      expect(state2).toEqual({
+        ids: [item1.id],
+        entities: {
+          [item1.id]: item1,
+        },
+      })
+    })
   })
 })
