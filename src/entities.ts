@@ -24,18 +24,27 @@ export const entitiesActions = {
 
 export const entitiesReducer = (
   actions: Actions<string, typeof entitiesActions>,
-  options: {
-    selectId?: (entity) => string
-    sortComparer?: (a, b) => number
-    processEntity?: (entity) => typeof entity
-  } = {},
+  {
+    selectId = (entity) => entity.id,
+    sortComparer,
+    updateComparer = (a, b) => a === b,
+    processEntity = (entity) => entity,
+  }: {
+    sortComparer?
+    selectId?: (entity: any) => any
+    updateComparer?: <T>(a: T, b: T) => boolean
+    processEntity?: <T>(entity: T) => T
+  },
 ) => {
-  const selectId = options.selectId ?? ((entity) => entity.id)
-  const processEntity = (entity) => entity
+  function merge(id, entity, entities) {
+    const source = entities[id]
+    if (updateComparer(source, entity)) return entities
+    return { ...entities, [id]: { ...source, ...entity } }
+  }
 
   function sorter(ids, entities) {
-    if (!options.sortComparer) return ids
-    return Object.values(entities).sort(options.sortComparer).map(selectId)
+    if (!sortComparer) return ids
+    return Object.values(entities).sort(sortComparer).map(selectId)
   }
 
   function addMany(items, state: EntitiesState) {
@@ -53,10 +62,13 @@ export const entitiesReducer = (
 
   function updateMany(updates, state: EntitiesState) {
     let entities = state.entities
-    for (const entity of updates) {
+    for (let entity of updates) {
       const id = selectId(entity)
       if (!(id in entities)) continue
-      entities = { ...entities, [id]: { ...entities[id], ...processEntity(entity) } }
+      const source = entities[id]
+      entity = processEntity(entity)
+      if (!updateComparer(entity, source))
+        entities = { ...entities, [id]: { ...source, ...entity } }
     }
     if (state.entities === entities) return state
     return {
@@ -114,5 +126,5 @@ export const selectEntities = <Entity>(state: EntitiesState<Entity>) =>
 export const selectEntityById = <Entity>(state: EntitiesState<Entity>, id) => state.entities[id]
 export const selectEntitiesTotal = (state: EntitiesState) => state.ids.length
 
-const merge = (id, entity, entities) => ({ ...entities, [id]: { ...entities[id], ...entity } })
+// const merge = (id, entity, entities) => ({ ...entities, [id]: { ...entities[id], ...entity } })
 const replace = (id, entity, entities) => ({ ...entities, [id]: entity })

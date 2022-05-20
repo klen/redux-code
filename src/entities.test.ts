@@ -214,4 +214,47 @@ describe('entities', () => {
     const state = reducer(initial, actions.addMany([item1, item2]))
     expect(selectEntitiesTotal(state)).toBe(2)
   })
+
+  describe('compare', () => {
+    const reducer = createReducer(
+      initial,
+      entitiesReducer(actions, {
+        updateComparer: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+      }),
+    )
+
+    it('updateOne', () => {
+      const item = { id: '1', body: 'b1' }
+      const state = reducer(initial, actions.addOne(item))
+      const state2 = reducer(state, actions.updateOne({ ...item }))
+      expect(state2.entities[item.id]).toBe(item)
+      const state3 = reducer(state, actions.updateOne({ ...item, body: 'b2' }))
+      expect(state3.entities[item.id]).not.toBe(item)
+    })
+
+    it('updateMany', () => {
+      const item1 = { id: '1', body: 'b1', order: 1 }
+      const item2 = { id: '2', body: 'b2', order: 2 }
+      const state = reducer(initial, actions.addMany([item1, item2]))
+      const state2 = reducer(state, actions.updateMany([{ ...item1 }, { ...item2 }]))
+      expect(state2.entities[item1.id]).toBe(item1)
+      expect(state2.entities[item2.id]).toBe(item2)
+      const state3 = reducer(
+        state,
+        actions.updateMany([
+          { ...item1, body: 'nb1' },
+          { ...item2, body: 'nb2' },
+        ]),
+      )
+      expect(state3.entities[item1.id]).not.toBe(item1)
+      expect(state3.entities[item2.id]).not.toBe(item2)
+    })
+
+    it('upsertOne', () => {
+      const item = { id: '1', body: 'b1' }
+      const state = reducer(initial, actions.upsertOne(item))
+      const state2 = reducer(state, actions.upsertOne({ ...item }))
+      expect(state2.entities[item.id]).toBe(item)
+    })
+  })
 })
