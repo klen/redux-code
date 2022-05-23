@@ -4,12 +4,7 @@ import { entitiesActions, entitiesReducer, selectEntities, selectEntitiesTotal }
 describe('entities', () => {
   const actions = createActions('base', entitiesActions)
   const initial = { ids: [], entities: {} }
-  const reducer = createReducer(
-    initial,
-    entitiesReducer(actions, {
-      sortComparer: (a, b) => a.order - b.order,
-    }),
-  )
+  const reducer = createReducer(initial, entitiesReducer(actions))
 
   it('entitiesActions', () => {
     expect(actions).toBeTruthy()
@@ -42,7 +37,7 @@ describe('entities', () => {
     const item2 = { id: '2', body: 'b2', order: 1 }
     const state = reducer(initial, actions.addMany([item1, item2]))
     expect(state).toEqual({
-      ids: [item2.id, item1.id],
+      ids: [item1.id, item2.id],
       entities: { [item1.id]: item1, [item2.id]: item2 },
     })
   })
@@ -72,7 +67,7 @@ describe('entities', () => {
       ]),
     )
     expect(state2).toEqual({
-      ids: [item2.id, item1.id],
+      ids: [item1.id, item2.id],
       entities: {
         [item1.id]: { ...item1, body: 'updated', order: 2 },
         [item2.id]: { ...item2, body: 'updated', order: 1 },
@@ -219,9 +214,20 @@ describe('entities', () => {
     const reducer = createReducer(
       initial,
       entitiesReducer(actions, {
+        sortComparer: (a, b) => a.order - b.order,
         updateComparer: (a, b) => JSON.stringify(a) === JSON.stringify(b),
       }),
     )
+
+    it('addMany', () => {
+      const item1 = { id: '1', body: 'b1', order: 2 }
+      const item2 = { id: '2', body: 'b2', order: 1 }
+      const state = reducer(initial, actions.addMany([item1, item2]))
+      expect(state).toEqual({
+        ids: [item2.id, item1.id],
+        entities: { [item1.id]: item1, [item2.id]: item2 },
+      })
+    })
 
     it('updateOne', () => {
       const item = { id: '1', body: 'b1' }
@@ -242,12 +248,13 @@ describe('entities', () => {
       const state3 = reducer(
         state,
         actions.updateMany([
-          { ...item1, body: 'nb1' },
-          { ...item2, body: 'nb2' },
+          { ...item1, order: 2 },
+          { ...item2, order: 1 },
         ]),
       )
       expect(state3.entities[item1.id]).not.toBe(item1)
       expect(state3.entities[item2.id]).not.toBe(item2)
+      expect(state3.ids).toEqual([item2.id, item1.id])
     })
 
     it('upsertOne', () => {

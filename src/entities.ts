@@ -25,16 +25,16 @@ export const entitiesActions = {
 export const entitiesReducer = (
   actions: Actions<string, typeof entitiesActions>,
   {
+    processEntity = (entity) => entity,
     selectId = (entity) => entity.id,
     sortComparer,
     updateComparer = (a, b) => a === b,
-    processEntity = (entity) => entity,
   }: {
-    sortComparer?
-    selectId?: (entity: any) => any
-    updateComparer?: <T>(a: T, b: T) => boolean
     processEntity?: <T>(entity: T) => T
-  },
+    selectId?: (entity: any) => any
+    sortComparer?: (a, b) => number
+    updateComparer?: <T>(a: T, b: T) => boolean
+  } = {},
 ) => {
   function merge(id, entity, entities) {
     const source = entities[id]
