@@ -2,6 +2,10 @@
 
 import { Action, AnyAction, Reducer, Store } from 'redux'
 
+/**
+ *
+ * Types of persist actions
+ */
 export const persistTypes = {
   /** Rehydrate an reducer */
   REHYDRATE: 'persist/rehydrate',
@@ -25,19 +29,34 @@ type PersistStorage = {
 }
 
 export type PersistConfig = {
-  /** Persist key (name in storage, persist key in action) */
+  /**
+   *
+   * Persist key (name in storage, persist key in action)
+   */
   key: string
 
-  /** A storage object to save state */
+  /**
+   *
+   * Storage to use
+   */
   storage?: PersistStorage
 
-  /** A function to serialize state to storage */
+  /**
+   *
+   * Rehydrate reducer state
+   */
   serialize?: (state) => string
 
-  /** A function to deserialize state from storage */
+  /**
+   *
+   * Deserialize function
+   */
   deserialize?: (stored: string) => any
 
-  /** A function to compare states */
+  /**
+   *
+   * A function to compare different states
+   */
   compare?: <S>(state: S, oldState: S, action: AnyAction) => boolean
 
   /** A function to merge states */
@@ -49,6 +68,12 @@ export type PersistConfig = {
 
 const PERSISTORS: PersistConfig[] = []
 
+/**
+ *
+ * Create a mixin for a reducer that adds the ability to handle persistence.
+ * @param {config} config The configuration.
+ * @param {reducer} reducer The reducer to handle.
+ */
 export function persistReducer<S = any, A extends Action = AnyAction>(
   config: PersistConfig,
   reducer: Reducer<S, A>,
@@ -106,7 +131,12 @@ export function persistReducer<S = any, A extends Action = AnyAction>(
   }
 }
 
-/** @param storage a default storage */
+/**
+ *
+ * Create a store enhancer that rehydrates the state of reducers
+ * @param {store} store The store to enhance.
+ * @param {storage} storage The storage to use.
+ */
 export function persistStore(store: Store, storage?: PersistStorage) {
   function rehydrate() {
     return Promise.all(
@@ -158,8 +188,20 @@ function createAsyncStorage(storage: Storage) {
   }
 }
 
+/**
+ *
+ * Create a storage that uses localStorage
+ */
 export const localStorage = createAsyncStorage(globalThis.localStorage)
+/**
+ *
+ * Create a storage that uses sessionStorage
+ */
 export const sessionStorage = createAsyncStorage(globalThis.sessionStorage)
+/**
+ *
+ * Create a storage that uses memory
+ */
 export const memoryStorage = (function () {
   const storage = {}
   return {

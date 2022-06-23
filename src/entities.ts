@@ -8,20 +8,72 @@ interface EntitiesState<Entity = any> {
 }
 
 export const entitiesActions = {
+  /**
+   * Creates an action to add a new entity to the store.
+   * @param {entity} entity The entity to add.
+   */
   addOne: (entity) => entity,
+  /**
+   * Creates an action to add multiple entities to the store.
+   * @param {entities} entities The entities to add.
+   */
   addMany: (entities: any[]) => entities,
+  /**
+   * Creates an action to update an entity in the store.
+   * @param {entity} entity The entity to update.
+   */
   updateOne: (entity) => entity,
+  /**
+   * Creates an action to update multiple entities in the store.
+   * @param {entities} entities The entities to update.
+   */
   updateMany: (entities: any[]) => entities,
+  /**
+   * Creates an action to insert or update an entity in the store.
+   * @param {entity} entity The entity to insert or update.
+   */
   upsertOne: (entity) => entity,
+  /**
+   * Create an action to insert or update multiple entities in the store.
+   * @param {entities} entities The entities to insert or update.
+   */
   upsertMany: (entities: any[]) => entities,
+  /**
+   * Creates an action to replace an entity in the store.
+   * @param {entity} entity The entity to replace.
+   */
   setOne: (entity) => entity,
+  /**
+   * Creates an action to replace multiple entities in the store.
+   * @param {entities} entities The entities to replace.
+   */
   setMany: (entities: any[]) => entities,
+  /**
+   * Creates an action to replace all entities in the store.
+   * @param {entities} entities The entities to replace.
+   */
   setAll: (entities: any[]) => entities,
+  /**
+   * Creates an action to remove an entity from the store.
+   * @param {entity} entity The entity to remove.
+   */
   removeOne: (entity) => entity,
+  /**
+   * Creates an action to remove multiple entities from the store.
+   * @param {entities} entities The entities to remove.
+   */
   removeMany: (entities: any[]) => entities,
+  /**
+   * Creates an action to remove all entities from the store.
+   */
   removeAll: () => undefined,
 }
 
+/**
+ * Create a mixin for a reducer that adds the ability to handle entities.
+ * @param {actions} actions The actions to handle.
+ * @param {config} config The configuration.
+ */
 export const entitiesReducer = (
   actions: Actions<string, typeof entitiesActions>,
   {
@@ -126,9 +178,21 @@ export const entitiesReducer = (
   }
 }
 
+/**
+ * Select the entities from the state.
+ * @param {state} state The state.
+ */
 export const selectEntities = <Entity>(state: EntitiesState<Entity>) =>
   state.ids.map((id) => state.entities[id])
+/**
+ * Select the entity with the given id from the state.
+ * @param {state} state The state.
+ */
 export const selectEntityById = <Entity>(state: EntitiesState<Entity>, id) => state.entities[id]
+/**
+ * Select the total number of entities in the state.
+ * @param {state} state The state.
+ */
 export const selectEntitiesTotal = (state: EntitiesState) => state.ids.length
 
 // const merge = (id, entity, entities) => ({ ...entities, [id]: { ...entities[id], ...entity } })

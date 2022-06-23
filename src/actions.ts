@@ -37,7 +37,9 @@ function processResult(type: string, result: any) {
 }
 
 /**
- * Build an action creator
+ * Create an action creator
+ * @param type an action type
+ * @param action a source to create an action creator
  */
 export function createAction<TypeName extends string, Action extends (...args: any[]) => any>(
   type: TypeName,
@@ -57,15 +59,20 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
   : never
 
 /**
- * A helper to create actions
+ * Build an action creator from a union of action creators
+ * @param prefix the prefix of the actions type
  */
-export function createActions<Prefix extends string, M extends string[] | Record<string, any>>(
-  prefix: Prefix,
-  mixin: M,
-): Actions<Prefix, MixType<M>>
 export function createActions<
   Prefix extends string,
-  Ms extends Array<string[] | Record<string, any>>, // we have to use any to prevent never
+  M extends S[] | Record<string, any>,
+  // To make typescript keep string keys
+  S extends string,
+>(prefix: Prefix, mixin: M): Actions<Prefix, MixType<M>>
+export function createActions<
+  Prefix extends string,
+  Ms extends Array<S[] | Record<string, any>>, // we have to use any to prevent never
+  // To make typescript keep string keys
+  S extends string,
 >(prefix: Prefix, ...mixins: Ms): Actions<Prefix, UnionToIntersection<MixType<Ms[number]>>>
 export function createActions(prefix, ...mixins) {
   const source = Object.assign(

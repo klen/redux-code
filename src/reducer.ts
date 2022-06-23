@@ -5,22 +5,26 @@ import produce, { Draft, isDraft, isDraftable } from 'immer'
 import { Action, combineReducers, Reducer } from 'redux'
 
 /**
- * A helper to create reducers (uses immer)
+ *
+ * A helper to create reducer (uses immer)
+ * @param initial The initial state
  */
-export const createReducer = function <S>(DEFAULT: S, ...mixins: object[]): Reducer<S> {
-  const reducer = createBaseReducer(DEFAULT, ...mixins)
-  return function (state = DEFAULT, action: Action) {
+export const createReducer = function <S>(initial: S, ...mixins: object[]): Reducer<S> {
+  const reducer = createBaseReducer(initial, ...mixins)
+  return function (state = initial, action: Action) {
     if (isDraft(state) || !isDraftable(state)) return reducer(state, action)
     return produce(state, (draft: Draft<S>) => reducer(draft, action))
   }
 }
 
 /**
- * A helper to create reducers (without immer)
+ *
+ * A helper to create reducer (without immer)
+ * @param initial The initial state
  */
-export const createBaseReducer = function <S>(DEFAULT: S, ...mixins: object[]): Reducer<S> {
+export const createBaseReducer = function <S>(initial: S, ...mixins: object[]): Reducer<S> {
   const reducers = Object.assign({}, ...mixins)
-  return function (state = DEFAULT, action: Action) {
+  return function (state = initial, action: Action) {
     const producer = reducers[action.type]
     if (producer) state = producer(state, action)
     return state

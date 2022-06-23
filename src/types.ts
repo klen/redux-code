@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Action } from 'redux'
@@ -34,5 +33,5 @@ export type ActionCreator<TypeName extends string, Source> = Source extends (...
 export type MixType<T> = T extends string[] ? { [K in T[number]]: <A>(arg?: A) => A } : T
 
 export type Actions<Prefix extends string, Source> = {
-  readonly [K in Extract<keyof Source, string>]: ActionCreator<`${Prefix}${K}`, Source[K]>
+  readonly [K in keyof Source]: K extends string ? ActionCreator<`${Prefix}${K}`, Source[K]> : never
 }

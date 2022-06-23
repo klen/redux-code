@@ -6,19 +6,29 @@ import { Actions } from './types'
  * Actions Mixin provides reset and update actions
  */
 export const commonActions = {
+  /**
+   *
+   * Creates an action to reset the state
+   */
   reset: undefined,
+  /**
+   *
+   * Creates an action to update the state with the given payload
+   */
   update: <T>(payload: T): T => payload,
 }
 
 /**
- * Common reducer.
- * Supports UPDATE and RESET actions
+ *
+ * Creates a mixin for a reducer that adds the ability to reset and update the state
+ * @param {actions} actions The actions to handle.
+ * @param {initial} initial The initial state.
  */
 export const commonReducer = <T extends Record<string, any> & typeof commonActions, S>(
   actions: Actions<string, T>,
-  DEFAULT: S,
+  initial: S,
 ) => ({
-  [actions.reset.type]: () => DEFAULT,
+  [actions.reset.type]: () => initial,
   [actions.update.type]: (state: object, { payload }) => ({ ...state, ...payload }),
 })
 

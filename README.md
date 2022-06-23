@@ -23,6 +23,8 @@ npm install --save redux-code
 
 ### createActions
 
+A helper to build actions creator.
+
 ```javascript
 import {createActions} from 'redux-code'
 
@@ -54,7 +56,7 @@ expect(actions.action3.type).toBe('prefix/action3')
 
 ```
 
-you may also pass an array of string to create simple actions
+You may also pass an array of strings to create simple actions
 
 ```javascript
 const actions = createActions('prefix/', ['init', 'update'])
@@ -65,6 +67,8 @@ expect(actions.update(42)).toEqual({type: 'prefix/update', payload: 42})
 ```
 
 #### Promises and thunks
+
+`Redux-Code` supports `redux-thunk` actions as well as async actions.
 
 ```javascript
 import {SKIP} from 'redux-code'
