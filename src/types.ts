@@ -2,32 +2,37 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Action } from 'redux'
-import { ThunkAction } from 'redux-thunk'
-
-type StringKeys<Object> = Extract<keyof Object, string>
-type Identity<T> = (arg: T) => T
+import type { ThunkAction } from 'redux-thunk'
 
 export type ActionCreatorResult<TypeName extends string, Result> = Result extends Action
   ? Result
-  : Result extends (dispatch, getState: () => any, extraArgument: infer Arg) => infer R
-  ? ThunkAction<R, any, Arg, any>
+  : Result extends ThunkAction<any, any, any, any>
+  ? Result
   : Result extends Promise<infer R>
-  ? ThunkAction<R, any, never, never>
+  ? ThunkAction<Promise<R>, any, never, never>
   : { type: TypeName; payload: Result }
 
-export interface ActionCreator<TypeName extends string, Result> {
+interface ActionCreatorProps<TypeName extends string> {
   type: TypeName
   toString(): TypeName
-  (...args: any): ActionCreatorResult<TypeName, Result>
 }
 
-export type MixType<T> = T extends string[]
-  ? { [K in T[number]]: Identity<unknown> }
-  : { [K in Extract<keyof T, string>]: T[K] }
+interface ActionCreatorSimple<TypeName extends string, Source>
+  extends ActionCreatorProps<TypeName> {
+  (): ActionCreatorResult<TypeName, Source>
+}
+
+interface ActionCreatorFn<TypeName extends string, Source extends (...args: any) => any>
+  extends ActionCreatorProps<TypeName> {
+  (...args: Parameters<Source>): ActionCreatorResult<TypeName, ReturnType<Source>>
+}
+
+export type ActionCreator<TypeName extends string, Source> = Source extends (...args: any) => any
+  ? ActionCreatorFn<TypeName, Source>
+  : ActionCreatorSimple<TypeName, Source>
+
+export type MixType<T> = T extends string[] ? { [K in T[number]]: <A>(arg?: A) => A } : T
 
 export type Actions<Prefix extends string, Source> = {
-  readonly [K in StringKeys<Source>]: ActionCreator<
-    `${Prefix}${K}`,
-    Source[K] extends (...args: any[]) => infer R ? R : Source[K]
-  >
+  readonly [K in Extract<keyof Source, string>]: ActionCreator<`${Prefix}${K}`, Source[K]>
 }

@@ -59,18 +59,13 @@ type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
 /**
  * A helper to create actions
  */
+export function createActions<Prefix extends string, M extends string[] | Record<string, any>>(
+  prefix: Prefix,
+  mixin: M,
+): Actions<Prefix, MixType<M>>
 export function createActions<
   Prefix extends string,
-  M extends S[] | Record<S, V>,
-  S extends string,
-  V extends string | number | boolean | object,
->(prefix: Prefix, mixin: M): Actions<Prefix, MixType<M>>
-export function createActions<
-  Prefix extends string,
-  Ms extends Array<S[] | Record<S, unknown>>, // we have to use any to prevent never
-  // Ms extends Array<S[] | Record<S, V>>,
-  S extends string,
-  // V extends string | number | boolean | object,
+  Ms extends Array<string[] | Record<string, any>>, // we have to use any to prevent never
 >(prefix: Prefix, ...mixins: Ms): Actions<Prefix, UnionToIntersection<MixType<Ms[number]>>>
 export function createActions(prefix, ...mixins) {
   const source = Object.assign(
@@ -94,7 +89,7 @@ export function createActions(prefix, ...mixins) {
  * Just a helper to create identity actions
  * createActions('prefix/', {update:identity, save:identity})
  */
-export const identity = <T>(arg: T): T => arg
+export const identity = <T>(arg?: T): T => arg
 
 // export function wrapAsync(action: ActionCreator<any>) {
 //   const wrapped = function (dispatch: ThunkDispatch<any, any, any>) {}

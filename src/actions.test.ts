@@ -22,7 +22,7 @@ describe('actions', () => {
     it('basic1', () => {
       const actions = createActions('prefix:', {
         action1: 1,
-        action2: (payload) => payload,
+        action2: (payload: number) => payload,
         action3: () => ({ type: 'custom' }),
       })
       expect(actions).toBeTruthy()
