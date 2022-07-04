@@ -70,7 +70,7 @@ describe('persist', () => {
 
     it('rehydrate stored', async () => {
       await memoryStorage.setItem('test', JSON.stringify({ value: 'initial' }))
-      const store = createStore(persist, {})
+      const store = createStore(persist, initial)
       await persistStore(store)
 
       const state = store.getState()
@@ -79,7 +79,7 @@ describe('persist', () => {
 
     it('rehydrate again', async () => {
       await memoryStorage.setItem('test', JSON.stringify({ value: 'initial' }))
-      const store = createStore(persist, {})
+      const store = createStore(persist, initial)
       const persistor = persistStore(store)
       await persistor
 
@@ -93,7 +93,7 @@ describe('persist', () => {
     })
 
     it('persist', async () => {
-      const store = createStore(persist, {})
+      const store = createStore(persist, initial)
       persistStore(store)
 
       store.dispatch(actions.update({ value: 42 }))
@@ -106,7 +106,7 @@ describe('persist', () => {
     })
 
     it('purge', async () => {
-      const store = createStore(persist, {})
+      const store = createStore(persist, initial)
       const persistor = persistStore(store)
 
       store.dispatch(actions.update({ value: 42 }))
@@ -120,7 +120,7 @@ describe('persist', () => {
     it('pause', async () => {
       await memoryStorage.setItem('test', JSON.stringify({ value: 'initial' }))
 
-      const store = createStore(persist, {})
+      const store = createStore(persist, initial)
       const persistor = persistStore(store)
 
       store.dispatch(actions.update({ value: 42 }))

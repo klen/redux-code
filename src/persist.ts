@@ -74,10 +74,10 @@ const PERSISTORS: PersistConfig[] = []
  * @param {config} config The configuration.
  * @param {reducer} reducer The reducer to handle.
  */
-export function persistReducer<S = any, A extends Action = AnyAction>(
+export function persistReducer<S = any, A extends AnyAction = AnyAction>(
   config: PersistConfig,
   reducer: Reducer<S, A>,
-) {
+): Reducer<S, A> {
   const { key } = config
   const serialize = config.serialize || JSON.stringify
   const merge = config.merge || ((stored) => stored)
