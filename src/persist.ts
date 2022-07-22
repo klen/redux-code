@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Action, AnyAction, Reducer, Store } from 'redux'
+import { AnyAction, Reducer, Store } from 'redux'
 
 /**
  *
@@ -180,12 +180,12 @@ const dispatchByKey = (
 function createAsyncStorage(storage: Storage) {
   return {
     setItem: (key, value) =>
-      new Promise((resolve) => {
+      new Promise<void>((resolve) => {
         resolve(storage.setItem(key, value))
       }),
-    getItem: (key) => new Promise((resolve) => resolve(storage.getItem(key))),
-    removeItem: (key) => new Promise((resolve) => resolve(storage.removeItem(key))),
-    clear: () => new Promise((resolve) => resolve(storage.clear())),
+    getItem: (key) => new Promise<string>((resolve) => resolve(storage.getItem(key))),
+    removeItem: (key) => new Promise<void>((resolve) => resolve(storage.removeItem(key))),
+    clear: () => new Promise<void>((resolve) => resolve(storage.clear())),
   }
 }
 
