@@ -8,7 +8,7 @@ describe('persist', () => {
   const reducer = createReducer(initial, commonReducer(actions, initial))
   const persist = persistReducer({ key: 'test', storage: memoryStorage }, reducer)
 
-  beforeEach(async () => await memoryStorage.setItem('test', undefined))
+  beforeEach(async () => await memoryStorage.removeItem('test'))
 
   it('persistReducer', async () => {
     const state = persist(undefined, {
@@ -55,7 +55,7 @@ describe('persist', () => {
     })
 
     it('rehydrate null', async () => {
-      await memoryStorage.setItem('test', null)
+      await memoryStorage.setItem('test', '')
       const store = createStore(persist)
       await persistStore(store)
 
@@ -110,9 +110,9 @@ describe('persist', () => {
       const persistor = persistStore(store)
 
       store.dispatch(actions.update({ value: 42 }))
+      await new Promise((resolve) => setTimeout(resolve, 0))
 
       persistor.purge('test')
-      await new Promise((resolve) => setTimeout(resolve, 0))
       const stored = await memoryStorage.getItem('test')
       expect(stored).toBeUndefined()
     })

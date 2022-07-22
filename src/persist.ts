@@ -24,8 +24,9 @@ export const persistTypes = {
 } as const
 
 type PersistStorage = {
-  setItem: (key: string, value) => Promise<any>
+  setItem: (key: string, value) => Promise<void>
   getItem: (key: string) => Promise<any>
+  removeItem: (key: string) => Promise<void>
 }
 
 export type PersistConfig = {
@@ -110,7 +111,7 @@ export function persistReducer<S = any, A extends AnyAction = AnyAction>(
           break
 
         case `${persistTypes.PURGE}/${key}`:
-          persist(undefined)
+          config.storage.removeItem(key)
           return state
 
         case `${persistTypes.PAUSE}/${key}`:
@@ -206,10 +207,13 @@ export const memoryStorage = (function () {
   const storage = {}
   return {
     setItem: async function (key, value) {
-      storage[key] = value
+      storage[key] = String(value)
     },
     getItem: async function (key) {
       return storage[key]
+    },
+    removeItem: async function (key) {
+      delete storage[key]
     },
   }
 })()
